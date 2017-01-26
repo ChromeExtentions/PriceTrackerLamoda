@@ -1,0 +1,32 @@
+{
+  "manifest_version": 2,
+
+  "name": "Price tracker",
+  "description": "...",
+  "version": "1.0",
+  "default_locale": "en",
+
+  "browser_action": {
+      "default_icon": "icon.png",
+      "default_popup": "pricetable.html",
+	  "default_title": "Open"
+  },
+  "background": {
+      "scripts": ["jquery-3.1.1.min.js", "eventPage.js"],
+      "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://www.lamoda.ru/*"],
+      "js": ["onpage.js"]
+    }
+  ],
+  "options_page": "options.html",
+  "permissions": [
+    "alarms",
+    "storage",
+    "notifications",
+    "https://ajax.googleapis.com/",
+    "https://market.yandex.ru/"
+  ]
+}

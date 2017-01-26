@@ -1,0 +1,6 @@
+{
+	"search_string": {
+	  "message": "привет%20мир",
+	  "description": "The string we search for. Put %20 between words that go together."
+	}
+}
