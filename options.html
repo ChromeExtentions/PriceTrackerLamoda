@@ -1,0 +1,125 @@
+<!DOCTYPE html >
+<html>
+<head>
+        <title>Price tracker Lamoda Options</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="jquery-ui.min.css">
+        <link rel="stylesheet" href="bootstrap.min.css">
+        <style>
+            #custom-handle {
+                width: 3em;
+                height: 1.6em;
+                top: 50%;
+                margin-top: -.8em;
+                text-align: center;
+                line-height: 1.6em;
+            }
+        </style>
+</head>
+<body>
+<input type="hidden" id="priceThreshUnitHidden">
+<input type="hidden" id="priceThreshHidden">
+<div class="row" style="margin-top: 20px;">
+    <div class="col-xs-1"></div>
+    <div class="col-xs-7">
+        <label for="updateInterval">Период проверки </label>
+        <select id="updateInterval">
+            <option value="2h">2 часа</option>
+            <option value="4h">4 часа</option>
+            <option value="8h">8 часов</option>
+            <option value="1d">1 день</option>
+        </select>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 10px;">
+    <div class="col-xs-1"></div>
+    <div class="col-xs-3">
+        <label>Обнаруживать изменение цены </label>
+    </div>
+    <div class="col-xs-4">
+        <label class="radio-inline"><input id="changeThresholdUnitRub" type="radio" name="changeThresholdUnit" value="rouble">в рублях</label>
+        <label class="radio-inline"><input id="changeThresholdUnitPercent" type="radio" name="changeThresholdUnit" value="percent">в процентах</label>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 10px;">
+    <div class="col-xs-1"></div>
+    <div class="col-xs-7">
+        <div id="changePriceThreshold">
+            <div id="custom-handle" class="ui-slider-handle"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 20px;">
+    <div class="col-xs-1"></div>
+    <div class="col-xs-7">
+        <label for="missingAfterDays">Считать товар отсутствующим через </label>
+        <select id="missingAfterDays">
+            <option value="3">3 дня</option>
+            <option value="7">7 дней</option>
+        </select>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 10px;">
+    <div class="col-xs-1"></div>
+    <div class="col-xs-3">
+        <label>При отсутствии товара </label>
+    </div>
+    <div class="col-xs-4">
+        <label class="radio-inline"><input id="trackIfMissingTrue" type="radio" name="trackIfMissing" value="true">Отслеживать</label>
+        <label class="radio-inline"><input id="trackIfMissingFalse" type="radio" name="trackIfMissing" value="false">Не отслеживать</label>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 10px;">
+    <div class="col-xs-1"></div>
+    <div class="col-xs-7">
+        <label for="missingCheckTimes">Отсутствующий товар проверять </label>
+        <select id="missingCheckTimes">
+            <option value="1">1 раз</option>
+            <option value="2">2 раза</option>
+            <option value="3">3 раза</option>
+            <option value="4">4 раза</option>
+            <option value="5">5 раз</option>
+        </select>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 10px;">
+    <div class="col-xs-1"></div>
+    <div class="col-xs-7">
+        <label for="maxPriceToShow">Отображать не больше </label>
+        <select id="maxPriceToShow">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select> цен на товар
+    </div>
+</div>
+
+<div class="row" style="margin-top: 10px;">
+    <div class="col-xs-1"></div>
+    <div class="col-xs-7 pull-right">
+        <div class="radio-inline">
+            <button id="save">Сохранить</button>
+            <button id="cancel">Отмена</button>
+        </div>
+    </div>
+</div>
+
+
+    <script src="jquery-3.1.1.min.js"></script>
+    <script src="jquery-ui.min.js"></script>
+    <script src="options.js"></script>
+</body>
+</html>

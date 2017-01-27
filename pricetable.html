@@ -1,131 +1,63 @@
 <!doctype html>
 <html>
 <head>
-    <title>Getting Started Extension's Popup</title>
+    <title>Price tracker Lamoda</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="jquery-ui.min.css">
+    <link rel="stylesheet" href="bootstrap.min.css">
     <style>
-        body {
-            font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
-            font-size: 100%;
+        table.priceTable  {
+            table-layout:fixed;
         }
-
-        #status {
-            /* avoid an excessively wide status text */
-            white-space: pre;
-            text-overflow: ellipsis;
+        div#container {
+            max-width: 360px;
+            height: 400px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+        table tr.priceTableTr {
+            height: 80px;
+        }
+        table td.priceTableImageTd {
+            width: 80px;
+            height: 80px;
+            border: 1px solid #66afe9;
+        }
+        table td.priceTableDescTd {
+            width: 280px;
+            height: 80px;
+            border: 1px solid #66afe9;
+        }
+        table.priceTableElement  {
+            width: 280px;
+            height: 80px;
+            table-layout:fixed;
+        }
+        table tr.priceTableElementTr {
+            width: 280px;
+        }
+        table td.priceTableElementTd {
+            width: 280px;
+            height: 40px;
             overflow: hidden;
-            max-width: 400px;
+            white-space: nowrap;
         }
-
-        table {
-            font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
-            font-size: 14px;
-            border-radius: 10px;
-            border-spacing: 0;
-            text-align: center;
-        }
-
-        th {
-            background: #BCEBDD;
-            color: white;
-            text-shadow: 0 1px 1px #2D2020;
-            padding: 10px 20px;
-        }
-
-        th, td {
-            border-style: solid;
-            border-width: 0 1px 1px 0;
-            border-color: white;
-        }
-
-        th:first-child, td:first-child {
-            text-align: left;
-        }
-
-        th:first-child {
-            border-top-left-radius: 10px;
-        }
-
-        th:last-child {
-            border-top-right-radius: 10px;
-            border-right: none;
-        }
-
-        td {
-            padding: 10px 20px;
-            background: #F8E391;
-        }
-
-        tr:last-child td:first-child {
-            border-radius: 0 0 0 10px;
-        }
-
-        tr:last-child td:last-child {
-            border-radius: 0 0 10px 0;
-        }
-
-        tr td:last-child {
-            border-right: none;
+        img.product{
+            width:80px;
+            height:80px;
         }
     </style>
-
-    <!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
-     -->
-    <script src="pricetable.js"></script>
 </head>
 <body>
-<table>
-    <thead>
-    <th>
+    <div id="container">
+        <table class="priceTable">
+            <tbody id="mainTableBody" >
 
-    </th>
-    <th>
-
-    </th>
-    <th>
-
-    </th>
-    <th>
-
-    </th>
-    <th>
-
-    </th>
-    </thead>
-    <tbody id="productsList">
-    <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    </tbody>
-</table>
+            </tbody>
+        </table>
+    </div>
+    <script src="jquery-3.1.1.min.js"></script>
+    <script src="pricetable.js"></script>
 </body>
 </html>
 

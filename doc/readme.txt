@@ -32,7 +32,10 @@ priceChecker_prices: [{
 priceChecker_options: {
 	maxProducts: 100,
 	maxPrices: 7,
-	updateInterval: 2
+	updateInterval: 2,
+	changePriceThreshholdUnit: 'rouble',
+	changePriceThreshhold: 100,
+	missingAfterDays: 4,
 	missingProductCheckPeriodDays: 3
 	deleteProductAfterChecks: 7
 }

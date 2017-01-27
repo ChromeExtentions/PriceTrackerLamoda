@@ -6,8 +6,15 @@
   "version": "1.0",
   "default_locale": "en",
 
+  "icons": {
+    "16": "la16.png",
+    "32": "la32.png",
+    "64": "la64.png",
+    "128": "la128.png"
+  },
+
   "browser_action": {
-      "default_icon": "icon.png",
+      "default_icon": "la64.png",
       "default_popup": "pricetable.html",
 	  "default_title": "Open"
   },

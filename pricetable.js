@@ -1,16 +1,31 @@
 
-window.addEventListener('DOMContentLoaded', function () {
-    var elem = document.getElementById("productsList");
 
-    var trList = elem.children;
-    for(var i=trList.length-1; i>=0; i--) {
-        elem.removeChild(trList[i]);
-    }
+
+
+$.get('priceTableItem.html', function(result) {
+    $('#mainTableBody').append(result);
+    $('#mainTableBody').append(result);
+    $('#mainTableBody').append(result);
+    $('#mainTableBody').append(result);
+    $('#mainTableBody').append(result);
+    $('#mainTableBody').append(result);
 });
+//var html = load('priceTableItem.html');
+
+//for(var i=0; i<6; i++) {
+//    $('tbody').append(html);
+//}
+//window.addEventListener('DOMContentLoaded', function () {
+//});
 
 
 
-
+//var elem = document.getElementById("productsList");
+//
+//var trList = elem.children;
+//for(var i=trList.length-1; i>=0; i--) {
+//    elem.removeChild(trList[i]);
+//}
 
 //
 // /**
