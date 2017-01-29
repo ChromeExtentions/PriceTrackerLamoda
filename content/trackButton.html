@@ -1,0 +1,81 @@
+<div id="trackProductContainer">
+<style>
+    table.trackProduct  {
+        table-layout:fixed;
+    }
+    div#trackProductContainer {
+        max-width: 360px;
+        height: 80px;
+        overflow-y: hidden;
+        overflow-x: hidden;
+
+        position: fixed;
+        /*z-index: 1000000000;*/
+        display: block;
+
+        left: auto;
+        bottom: auto;
+        right: 0px;
+
+        border: thin #2b2b2b;
+        background-color: white;
+    }
+    table tr.trackProductTr {
+        height: 80px;
+    }
+    table td.trackProductImageTd {
+        width: 80px;
+        height: 80px;
+    }
+    table td.trackProductDescTd {
+        width: 280px;
+        height: 80px;
+    }
+    table.trackProductElement  {
+        width: 280px;
+        height: 80px;
+        table-layout:fixed;
+    }
+    table tr.trackProductElementTr {
+        width: 280px;
+    }
+    table td.trackProductElementTd {
+        width: 280px;
+        height: 40px;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    img.product{
+        width:80px;
+        height:80px;
+    }
+    .hideElement {
+        display: none;
+    }
+</style>
+<table class="trackProduct">
+    <tbody>
+        <tr class="trackProductTr">
+            <td class="trackProductImageTd">
+                <a id="trackButton" href="#"><img id="logoImage" src="imgPath" class="product"></a>
+            </td>
+            <td class="trackProductDescTd">
+                <table class="trackProductElement">
+                    <tbody>
+                    <tr class="trackProductElementTr">
+                        <td class="trackProductElementTd">
+                            Следить за ценой товара
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="trackProductElementTd">
+                            laModa Price Tracker
+                        </td>
+                    <tr>
+                    </tbody>
+                </table>
+            </td>
+        <tr>
+    </tbody>
+</table>
+</div>

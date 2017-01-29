@@ -1,4 +1,4 @@
-
+;
 var alarmInfo = chrome.storage.local.get('priceChecker_task', function() {});
 if(typeof alarmInfo == 'undefined' || alarmInfo == null || alarmInfo.periodInMinutes == 'undefined' || alarmInfo.periodInMinutes == null) {
     alarmInfo = { when: 1000, periodInMinutes: 1 };
@@ -16,17 +16,31 @@ chrome.alarms.onAlarm.addListener(
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        chrome.storage.local.set( { 'priceChecker_test':  request.content });
 
-        if(typeof request.notify != 'undefined') {
-            var opt = {
-                type: "basic",
-                title: "Primary Title",
-                message: "Primary message to display",
-                iconUrl: "icon.png"
-            };
-            chrome.notifications.create(opt);
+        try {
+            var result = addProduct(request);
+            if(result == 0) {
+                sendResponse( { result: "Товар добавлен" } );
+            }
+            else if(result == 1) {
+                sendResponse( { result: "Лимит отслеживаемых товаров исчерпан" } );
+            }
         }
+        catch(err) {
+            sendResponse( { result: "Произошла ошибка. Попробуйте еще раз." } );
+        }
+
+
+
+        // if(typeof request.notify != 'undefined') {
+        //     var opt = {
+        //         type: "basic",
+        //         title: "Primary Title",
+        //         message: "Primary message to display",
+        //         iconUrl: "icon.png"
+        //     };
+        //     chrome.notifications.create(opt);
+        // }
     }
 );
 

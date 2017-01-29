@@ -1,39 +1,42 @@
 {
   "manifest_version": 2,
 
-  "name": "Price tracker",
+  "name": "laModa Price Tracker",
   "description": "...",
   "version": "1.0",
   "default_locale": "en",
 
   "icons": {
-    "16": "la16.png",
-    "32": "la32.png",
-    "64": "la64.png",
-    "128": "la128.png"
+      "16": "img/la16.png",
+      "32": "img/la32.png",
+      "64": "img/la64.png",
+      "128": "img/la128.png"
   },
 
   "browser_action": {
-      "default_icon": "la64.png",
+      "default_icon": "img/la64.png",
       "default_popup": "pricetable.html",
 	  "default_title": "Open"
   },
   "background": {
-      "scripts": ["jquery-3.1.1.min.js", "eventPage.js"],
+      "scripts": [ "lib/jquery-3.1.1.min.js", "eventPage.js" ],
       "persistent": false
   },
   "content_scripts": [
-    {
-      "matches": ["http://www.lamoda.ru/*"],
-      "js": ["onpage.js"]
-    }
+      {
+        "matches": [ "http://www.lamoda.ru/*"],
+        "js": [ "lib/jquery-3.1.1.min.js", "content/onpage.js" ]
+      }
   ],
-  "options_page": "options.html",
+  "web_accessible_resources": [
+      "content/trackButton.html",
+      "img/logo.jpg"
+  ],
+  "options_page": "options/options.html",
   "permissions": [
     "alarms",
     "storage",
     "notifications",
-    "https://ajax.googleapis.com/",
-    "https://market.yandex.ru/"
+    "https://ajax.googleapis.com/"
   ]
 }
