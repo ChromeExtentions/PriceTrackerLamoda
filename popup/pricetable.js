@@ -1,7 +1,6 @@
 ;
 
 
-
 $.get('priceTableItem.html', function(result) {
     $('#mainTableBody').append(result);
     $('#mainTableBody').append(result);

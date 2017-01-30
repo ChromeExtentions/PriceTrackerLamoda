@@ -25,7 +25,8 @@ function addTrackButton() {
             setLogoImagePath();
             bindClickEventListener();
 
-            $('#trackProductContainer').css("top", topButtonCoord);
+            $('#trackProductContainerDiv').css("top", topButtonCoord);
+            $('#trackProductContainerTTT').css("top", topButtonCoord-100);
         });
     }
     else {
@@ -36,20 +37,108 @@ function addTrackButton() {
 
 function setLogoImagePath() {
     var imgPath = chrome.extension.getURL("img/logo.jpg");
-    $('#trackProductContainer').find("#logoImage").attr("src", imgPath);
+    $('#trackProductContainerDiv').find("#logoImage").attr("src", imgPath);
 }
 
 function bindClickEventListener() {
     $('#trackButton').click(function(e) {
-        chrome.runtime.sendMessage(
-            {
-                name:  '',
-                code: '',
-                url: '',
-                imageUrl: ''
-            }
-        , function(response) {
-            $('#trackProductElementTd').text(response);
-        });
+        var productDiv = $('div.ii-product');
+        var titleElement = $(productDiv).find('.ii-product__title');
+        var priceElement = $(productDiv).find('.ii-product__price');
+        var imgSrc = $('img.showcase__item-image').attr('src');
+        var urlDomain = extractUrlProtoDomainPath();
+        var forSave =
+        {
+            name: $(titleElement).text(),
+            code: $(productDiv).attr('data-sku'),
+            url:  urlDomain + $(productDiv).attr('data-url'),
+            imgBase64: null,
+            price: Number( $(priceElement).attr('data-current') )
+        };
+        resizeImgAndStoreProduct( forSave, imgSrc, 80, 80)
     });
+}
+
+function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
+{
+    $('body').append('<canvas id="resizedCanvas" style="display: none;"></canvas></div>');
+
+    var img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = function() {
+        var can = document.getElementById('resizedCanvas');
+        var ctx = can.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        // We create a canvas and get its context.
+        var canvas = document.getElementById('resizedCanvas');
+        ctx = can.getContext('2d');
+
+        // We set the dimensions at the wanted size.
+        canvas.width = wantedWidth;
+        canvas.height = wantedHeight;
+
+        // We resize the image with the canvas method drawImage();
+        ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
+
+        forSave.imgBase64 = canvas.toDataURL();
+
+        //------ Send product data to extention ---------
+        sendProductInfo(forSave);
+    };
+
+    img.src = imgSrc;
+
+    ////$('body').append('<img id="resizedImg" style="display: none;"/></div>');
+    //
+    //// We create an image to receive the Data URI
+    ////var img = document.getElementById('resizedImg');
+    //var img = new Image();
+    //
+    //img.crossOrigin = "Anonymous";
+    //// When the event "onload" is triggered we can resize the image.
+    //img.onload = function()
+    //{
+    //    // We create a canvas and get its context.
+    //    var canvas = document.getElementById('resizedCanvas');
+    //    var ctx = canvas.getContext('2d');
+    //
+    //    // We set the dimensions at the wanted size.
+    //    canvas.width = wantedWidth;
+    //    canvas.height = wantedHeight;
+    //
+    //    // We resize the image with the canvas method drawImage();
+    //    ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
+    //
+    //    forSave.imgBase64 = canvas.toDataURL();
+    //
+    //    //------ Send product data to extention ---------
+    //    sendProductInfo(forSave);
+    //};
+    //
+    //// We put the Data URI in the image's src attribute
+    //img.crossOrigin = "Anonymous";
+    //img.src = imgSrc;
+    //img.crossOrigin = "Anonymous";
+}
+
+function sendProductInfo(forSave) {
+    chrome.runtime.sendMessage( forSave , function(response) {
+        $('#trackProductLabelTd').text(response.result);
+    });
+}
+
+function extractUrlProtoDomainPath() {
+    var url = document.URL;
+    var pattern = '/';
+    var count = 0;
+    var i = 0;
+
+    while (count<3 || index < url.length-1) {
+        count = url[i++] === pattern ? count+1 : count;
+        if(count == 3) {
+            return  url.substr(0, i-1);
+        }
+    }
+    return null;
 }

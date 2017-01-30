@@ -15,11 +15,11 @@
 
   "browser_action": {
       "default_icon": "img/la64.png",
-      "default_popup": "pricetable.html",
+      "default_popup": "popup/pricetable.html",
 	  "default_title": "Open"
   },
   "background": {
-      "scripts": [ "lib/jquery-3.1.1.min.js", "eventPage.js" ],
+      "scripts": [ "lib/jquery-3.1.1.min.js", "productStorageUtil.js", "eventPage.js" ],
       "persistent": false
   },
   "content_scripts": [

@@ -1,4 +1,7 @@
 ;
+// Настройки расширения
+applySettings();
+
 var alarmInfo = chrome.storage.local.get('priceChecker_task', function() {});
 if(typeof alarmInfo == 'undefined' || alarmInfo == null || alarmInfo.periodInMinutes == 'undefined' || alarmInfo.periodInMinutes == null) {
     alarmInfo = { when: 1000, periodInMinutes: 1 };
@@ -18,19 +21,11 @@ chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
 
         try {
-            var result = addProduct(request);
-            if(result == 0) {
-                sendResponse( { result: "Товар добавлен" } );
-            }
-            else if(result == 1) {
-                sendResponse( { result: "Лимит отслеживаемых товаров исчерпан" } );
-            }
+            addProduct(request, sendResponse);
         }
         catch(err) {
             sendResponse( { result: "Произошла ошибка. Попробуйте еще раз." } );
         }
-
-
 
         // if(typeof request.notify != 'undefined') {
         //     var opt = {
@@ -44,11 +39,20 @@ chrome.runtime.onMessage.addListener(
     }
 );
 
-// chrome.browserAction.onClicked.addListener(function(tab) {
-//     chrome.browserAction.setPopup({
-//         popup: '!!!!!!!!'
-//     });
-// });
+function applySettings() {
+    var settings = {
+        updateInterval: '8h',
+        changeThresholdUnitRub: 100,
+        changeThresholdUnitPercent: 4,
+        changeThresholdUnit: 'rouble',
+        missingAfterDays: 7,
+        trackIfMissing: true,
+        missingCheckPeriod: 7,
+        missingCheckTimes: 4,
+        maxPriceToShow: 10
+    };
+    chrome.storage.sync.set( settings , function() {});
+}
 
 function updatePrices() {
     var url = 'https://market.yandex.ru/product/13925684?show-uid=849459940624320842016001&nid=56181';
