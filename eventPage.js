@@ -21,7 +21,8 @@ chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
 
         try {
-            addProduct(request, sendResponse);
+            //loadImg(request.imgSrc);
+            //addProduct(request, sendResponse);
         }
         catch(err) {
             sendResponse( { result: "Произошла ошибка. Попробуйте еще раз." } );
@@ -52,6 +53,25 @@ function applySettings() {
         maxPriceToShow: 10
     };
     chrome.storage.sync.set( settings , function() {});
+}
+
+
+
+function bufferToBase64(buf) {
+    var binstr = Array.prototype.map.call(buf, function (ch) {
+        return String.fromCharCode(ch);
+    }).join('');
+    return btoa(binstr);
+}
+
+function _base64ToArrayBuffer(base64) {
+    var binary_string =  window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array( len );
+    for (var i = 0; i < len; i++)        {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
 }
 
 function updatePrices() {

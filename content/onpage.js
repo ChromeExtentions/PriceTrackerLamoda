@@ -27,6 +27,8 @@ function addTrackButton() {
 
             $('#trackProductContainerDiv').css("top", topButtonCoord);
             $('#trackProductContainerTTT').css("top", topButtonCoord-100);
+
+
         });
     }
     else {
@@ -55,13 +57,22 @@ function bindClickEventListener() {
             imgBase64: null,
             price: Number( $(priceElement).attr('data-current') )
         };
+
+
+        var ifr = '<iframe id="ifrb" src="' + imgSrc + '"></iframe>';
+        $('body').append(ifr);
+
+
         resizeImgAndStoreProduct( forSave, imgSrc, 80, 80)
     });
 }
 
 function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
 {
-    $('body').append('<canvas id="resizedCanvas" style="display: none;"></canvas></div>');
+    $('#ifrb').append('<canvas id="resizedCanvas" style="display: none;"></canvas></div>');
+
+    forSave.imgSrc = imgSrc;
+    sendProductInfo(forSave);
 
     var img = new Image();
     img.crossOrigin = 'Anonymous';
