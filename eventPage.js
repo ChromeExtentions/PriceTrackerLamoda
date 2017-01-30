@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener(
 
         try {
             //loadImg(request.imgSrc);
-            //addProduct(request, sendResponse);
+            addProduct(request, sendResponse);
         }
         catch(err) {
             sendResponse( { result: "Произошла ошибка. Попробуйте еще раз." } );

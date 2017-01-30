@@ -58,22 +58,20 @@ function bindClickEventListener() {
             price: Number( $(priceElement).attr('data-current') )
         };
 
-
-        var ifr = '<iframe id="ifrb" src="' + imgSrc + '"></iframe>';
-        $('body').append(ifr);
-
-
         resizeImgAndStoreProduct( forSave, imgSrc, 80, 80)
     });
 }
 
 function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
 {
-    $('#ifrb').append('<canvas id="resizedCanvas" style="display: none;"></canvas></div>');
+
+
+
+    $('body').append('<canvas id="resizedCanvas" style="display: none;"></canvas></div>');
 
     forSave.imgSrc = imgSrc;
-    sendProductInfo(forSave);
-
+    // sendProductInfo(forSave);
+    //
     var img = new Image();
     img.crossOrigin = 'Anonymous';
     img.onload = function() {
@@ -81,9 +79,11 @@ function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
         var ctx = can.getContext('2d');
         ctx.drawImage(img, 0, 0);
 
+        forSave.imgBase64Old = can.toDataURL();
+
         // We create a canvas and get its context.
         var canvas = document.getElementById('resizedCanvas');
-        ctx = can.getContext('2d');
+        ctx = canvas.getContext('2d');
 
         // We set the dimensions at the wanted size.
         canvas.width = wantedWidth;
@@ -98,6 +98,7 @@ function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
         sendProductInfo(forSave);
     };
 
+    // img.crossOrigin = '';
     img.src = imgSrc;
 
     ////$('body').append('<img id="resizedImg" style="display: none;"/></div>');
@@ -133,6 +134,8 @@ function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
     //img.crossOrigin = "Anonymous";
 }
 
+
+
 function sendProductInfo(forSave) {
     chrome.runtime.sendMessage( forSave , function(response) {
         $('#trackProductLabelTd').text(response.result);
@@ -153,3 +156,56 @@ function extractUrlProtoDomainPath() {
     }
     return null;
 }
+
+
+//===================================================================
+// var imgSrc = $('img.showcase__item-image').attr('src');
+// var ifr = '<iframe id="ifrb" src="' + imgSrc + '"><canvas id="resizedCanvas" style="display: none;"></canvas></iframe>';
+// $('body').append(ifr);
+//
+// $('#ifrb').on('load', function(){
+//     var ifDocument = document.getElementById('ifrb').contentWindow.document;
+//     var img = new Image();
+//     // img.crossOrigin = 'Anonymous';
+//
+//     img.onload = function() {
+//         var can = ifDocument.getElementById('resizedCanvas');
+//         var ctx = can.getContext('2d');
+//         ctx.drawImage(img, 0, 0);
+//
+//         var canvas = ifDocument.getElementById('resizedCanvas');
+//         ctx = can.getContext('2d');
+//
+//         canvas.width = 80;
+//         canvas.height = 80;
+//
+//         ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
+//
+//         // forSave.imgBase64 = canvas.toDataURL();
+//
+//         //------ Send product data to extention ---------
+//         // sendProductInfo(forSave);
+//         var i=0;
+//     };
+//
+//     img.src = imgSrc;
+// });
+
+
+// function listener(event){
+//     if ( event.origin !== "http://www.lamoda.ru" )
+//         return;
+//
+//     alert(event.data);
+// }
+// if (window.addEventListener){
+//     window.addEventListener("message", listener,false);
+// } else {
+//     window.attachEvent("onmessage", listener);
+// }
+
+// var win = document.getElementById("ifrb").contentWindow;
+// win.postMessage(
+//     "@@@",
+//     "*" // target domain
+// );
