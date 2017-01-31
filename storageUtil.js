@@ -26,7 +26,7 @@ function addProduct(request, sendResponseCallback) {
                     try: null
                 };
 
-                var id = 'priceChecker_' + product.code;
+                var id = product.code;
                 if(typeof productList == 'undefined') {
                     productList = {};
                 }
@@ -62,10 +62,11 @@ function addProduct(request, sendResponseCallback) {
     });
 }
 
-function getProductTable(callback) {
+function getProductTable(renderCallback) {
     chrome.storage.local.get( ['productList', 'productPrices'], function(result) {
 
         if(typeof result == 'undefined' || result == null || result.length == 0
+            || typeof result.productList == 'undefined' || result.productList == null || result.productList.length == 0
             || typeof result.productPrices == 'undefined' || result.productPrices == null || result.productPrices.length == 0) {
             return [];
         }
@@ -76,19 +77,45 @@ function getProductTable(callback) {
             var code = value.code;
             var name = value.name;
 
-            var id = 'priceChecker_' + value.code;
+            var id = value.code;
             var prices = result.productPrices[id];
             productTable.push( { code: code, name: name, prices: prices } );
         });
-        callback(productTable);
+        renderCallback(productTable);
     });
 }
 
-function removeProduct(id, sendResponseCallback) {
-    chrome.storage.local.get( 'productList', function(result) {
-        delete result.id;
-        chrome.storage.local.set( { 'productList': result }, function(result) {
-            sendResponseCallback({result: "success"});
+function removeProduct(id, renderCallback) {
+    chrome.storage.local.get( ['productList', 'productPrices'], function(result) {
+
+        if(typeof result == 'undefined' || result == null || result.length == 0
+            || typeof result.productList == 'undefined' || result.productList == null || result.productList.length == 0
+            || typeof result.productPrices == 'undefined' || result.productPrices == null || result.productPrices.length == 0) {
+            return [];
+        }
+
+        console.log(result.productList);
+
+        delete result.productList.id;
+        delete result.productPrices[id];
+
+        chrome.storage.local.set( { 'productList': result.productList, productPrices: result.productPrices }, function(result) {
+            if(typeof chrome.runtime.lastError != 'undefined') {
+                //sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
+            }
+            else {
+                var productTable = [];
+                Object.keys(result.productList).forEach(function(key) {
+                    var value = result.productList[key];
+                    var code = value.code;
+                    var name = value.name;
+
+                    var id = value.code;
+                    var prices = result.productPrices[id];
+                    productTable.push( { code: code, name: name, prices: prices } );
+                });
+                renderCallback(productTable);
+            }
         });
     });
 }
