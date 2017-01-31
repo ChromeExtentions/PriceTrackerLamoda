@@ -11,13 +11,15 @@ var renderCallback = function(productTable) {
             $('#mainTableBody').html(result);
         });
     }
-
-    $.get('priceTableItem.html', function(result) {
-        renderProductTable(productTable, result);
-    });
+    else {
+        $.get('priceTableItem.html', function(result) {
+            renderProductTable(productTable, result);
+        });
+    }
 };
 
 var renderProductTable = function(productTable, itemTemplate) {
+    $('#mainTableBody').empty();
     for(var i=0; i<productTable.length; i++) {
         var itemHtml =  $( (' ' + itemTemplate).slice(1) );
         var tdPriceOld = itemHtml.find('.productPriceOld')[0];

@@ -63,22 +63,20 @@ function addProduct(request, sendResponseCallback) {
 }
 
 function getProductTable(renderCallback) {
-    chrome.storage.local.get( ['productList', 'productPrices'], function(result) {
-
-        if(typeof result == 'undefined' || result == null || result.length == 0
-            || typeof result.productList == 'undefined' || result.productList == null || result.productList.length == 0
-            || typeof result.productPrices == 'undefined' || result.productPrices == null || result.productPrices.length == 0) {
-            return [];
+    chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
+        if(isEmpty(productData) || isEmpty(productData.productList) || isEmpty(productData.productPrices)) {
+            productData.productList = {};
+            productData.productPrices = {};
         }
 
         var productTable = [];
-        Object.keys(result.productList).forEach(function(key) {
-            var value = result.productList[key];
+        Object.keys(productData.productList).forEach(function(key) {
+            var value = productData.productList[key];
             var code = value.code;
             var name = value.name;
 
             var id = value.code;
-            var prices = isEmpty(result.productPrices[id]) ? [] : result.productPrices[id];
+            var prices = isEmpty(productData.productPrices[id]) ? [] : productData.productPrices[id];
             productTable.push( { code: code, name: name, prices: prices } );
         });
         renderCallback(productTable);
@@ -88,11 +86,10 @@ function getProductTable(renderCallback) {
 function removeProduct(id, renderCallback) {
     chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
 
-        if(isEmpty(productData) || isEmpty(productData.productList) || isEmpty(productData.productPrices)) {
-            return [];
+        if(!isEmpty(productData) && isEmpty(productData.productList) && isEmpty(productData.productPrices)) {
+            productData.productList = {};
+            productData.productPrices = {};
         }
-
-        console.log(productData);
 
         delete productData.productList[id];
         delete productData.productPrices[id];
@@ -104,7 +101,7 @@ function removeProduct(id, renderCallback) {
             else {
                 var productTable = [];
                 Object.keys(productData.productList).forEach(function(key) {
-                    var value = result.productList[key];
+                    var value = productData.productList[key];
                     var code = value.code;
                     var name = value.name;
 
@@ -112,7 +109,6 @@ function removeProduct(id, renderCallback) {
                     var prices = productData.productPrices[id];
                     productTable.push( { code: code, name: name, prices: prices } );
                 });
-                console.log(productTable);
                 renderCallback(productTable);
             }
         });
