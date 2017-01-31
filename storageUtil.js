@@ -78,7 +78,7 @@ function getProductTable(renderCallback) {
             var name = value.name;
 
             var id = value.code;
-            var prices = result.productPrices[id];
+            var prices = isEmpty(result.productPrices[id]) ? [] : result.productPrices[id];
             productTable.push( { code: code, name: name, prices: prices } );
         });
         renderCallback(productTable);
@@ -86,34 +86,33 @@ function getProductTable(renderCallback) {
 }
 
 function removeProduct(id, renderCallback) {
-    chrome.storage.local.get( ['productList', 'productPrices'], function(result) {
+    chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
 
-        if(typeof result == 'undefined' || result == null || result.length == 0
-            || typeof result.productList == 'undefined' || result.productList == null || result.productList.length == 0
-            || typeof result.productPrices == 'undefined' || result.productPrices == null || result.productPrices.length == 0) {
+        if(isEmpty(productData) || isEmpty(productData.productList) || isEmpty(productData.productPrices)) {
             return [];
         }
 
-        console.log(result.productList);
+        console.log(productData);
 
-        delete result.productList.id;
-        delete result.productPrices[id];
+        delete productData.productList[id];
+        delete productData.productPrices[id];
 
-        chrome.storage.local.set( { 'productList': result.productList, productPrices: result.productPrices }, function(result) {
+        chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices }, function(result) {
             if(typeof chrome.runtime.lastError != 'undefined') {
                 //sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
             }
             else {
                 var productTable = [];
-                Object.keys(result.productList).forEach(function(key) {
+                Object.keys(productData.productList).forEach(function(key) {
                     var value = result.productList[key];
                     var code = value.code;
                     var name = value.name;
 
                     var id = value.code;
-                    var prices = result.productPrices[id];
+                    var prices = productData.productPrices[id];
                     productTable.push( { code: code, name: name, prices: prices } );
                 });
+                console.log(productTable);
                 renderCallback(productTable);
             }
         });

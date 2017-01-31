@@ -20,13 +20,13 @@
 
   },
   "background": {
-      "scripts": [ "lib/jquery-3.1.1.min.js", "storageUtil.js", "eventPage.js" ],
+      "scripts": [ "lib/jquery-3.1.1.min.js", "util.js", "storageUtil.js", "eventPage.js" ],
       "persistent": false
   },
   "content_scripts": [
       {
         "matches": [ "http://www.lamoda.ru/*"],
-        "js": [ "lib/jquery-3.1.1.min.js", "content/onpage.js" ]
+        "js": [ "lib/jquery-3.1.1.min.js", "util.js", "content/onpage.js" ]
       }
   ],
   "web_accessible_resources": [

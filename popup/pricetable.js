@@ -1,8 +1,23 @@
 ;
+$(function() {
 
-var itemTemplate = '';
+    getProductTable(renderCallback);
+
+});
 
 var renderCallback = function(productTable) {
+    if(productTable.length == 0) {
+        $.get('emptyPriceTable.html', function(result) {
+            $('#mainTableBody').html(result);
+        });
+    }
+
+    $.get('priceTableItem.html', function(result) {
+        renderProductTable(productTable, result);
+    });
+};
+
+var renderProductTable = function(productTable, itemTemplate) {
     for(var i=0; i<productTable.length; i++) {
         var itemHtml =  $( (' ' + itemTemplate).slice(1) );
         var tdPriceOld = itemHtml.find('.productPriceOld')[0];
@@ -13,7 +28,7 @@ var renderCallback = function(productTable) {
 
         $(rowId).val(productTable[i].code);
 
-        var prices = productTable[i].prices;
+        var prices =  isEmpty(productTable[i].prices) ? [] : productTable[i].prices;
         var oldPrice = 0.0;
         var newPrice = 0.0;
         if(prices.length > 1) {
@@ -21,7 +36,8 @@ var renderCallback = function(productTable) {
         }
         newPrice = prices[prices.length-1];
 
-        $(tdName).contents().last()[0].textContent = productTable[i].name;
+
+        $(tdName).text(productTable[i].name);
         $(tdPriceOld).text("Было " + oldPrice + " руб.");
         $(tdPriceNew).text("Стало " + newPrice + " руб.");
         $(removeButton).attr("data-id", productTable[i].code);
@@ -36,13 +52,6 @@ var renderCallback = function(productTable) {
         });
     }
 };
-
-$.get('priceTableItem.html', function(result) {
-    itemTemplate = result;
-    getProductTable(renderCallback);
-});
-
-
 
 //var html = load('priceTableItem.html');
 
