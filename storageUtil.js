@@ -1,65 +1,60 @@
 
 function addProduct(request, sendResponseCallback) {
 
-    chrome.storage.sync.get( ['updateInterval', 'maxProductCount', 'maxPriceToShow'], function(settings) {
+    // chrome.storage.sync.get( ['updateInterval', 'maxProductCount', 'maxPriceToShow'], function(settings) {
+    // });
 
-        chrome.storage.local.get( 'productList', function(result) {
+    var settings = window.settings;
 
-            var productList = result.productList;
-            if(typeof productList == 'undefined') {
+    chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
+
+        var productList = productData.productList;
+        if(typeof productList == 'undefined') {
+            productList = {};
+        }
+
+        var productCount = productList.length;
+        if(productCount >= settings.maxProductCount) {
+            sendResponseCallback("Лимит отслеживаемых товаров исчерпан");
+            return;
+        }
+        else {
+            var nextUpdate = calcUpdateTime(settings.updateInterval);
+            var product = {
+                name: request.name,
+                code: request.code,
+                url: request.url,
+                imgBase64: request.imgBase64,
+                nextUpdate: nextUpdate,
+                try: null
+            };
+
+            var id = product.code;
+
+            if(isEmpty(productList)) {
                 productList = {};
             }
+            productList[id] = product;
 
-            var productCount = productList.length;
-            if(productCount >= settings.maxProductCount) {
-                sendResponseCallback("Лимит отслеживаемых товаров исчерпан");
-                return;
+            var productPrices = productData.productPrices;
+            if(isEmpty(productPrices)) {
+                productPrices = {};
             }
-            else {
-                var nextUpdate = calcUpdateTime(settings.updateInterval);
-                var product = {
-                    name: request.name,
-                    code: request.code,
-                    url: request.url,
-                    imgBase64: request.imgBase64,
-                    nextUpdate: nextUpdate,
-                    try: null
-                };
 
-                var id = product.code;
-                if(typeof productList == 'undefined') {
-                    productList = {};
-                }
-                productList[id] = product;
+            updateProductPrices(productPrices, id, request.price, settings.maxPriceToShow);
 
-                chrome.storage.local.set( { productList: productList },
-                    function() {
-                        if(typeof chrome.runtime.lastError != 'undefined') {
-                            sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
-                        }
-                        else {
-                            chrome.storage.local.get( 'productPrices', function(res) {
-                                var productPrices = res.productPrices;
-                                if(typeof productPrices == 'undefined') {
-                                    productPrices = {}
-                                }
-                                updateProductPrices(productPrices, id, request.price, settings.maxPriceToShow);
-
-                                chrome.storage.local.set( { productPrices: productPrices },
-                                    function() {
-                                        if(typeof chrome.runtime.lastError != 'undefined') {
-                                            sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
-                                        }
-                                        else {
-                                            sendResponseCallback({result: "Товар добавлен"});
-                                        }
-                                    });
-                            });
-                        }
-                    });
-            }
-        });
+            chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices },
+                function(result) {
+                    if(typeof chrome.runtime.lastError != 'undefined') {
+                        sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
+                    }
+                    else {
+                         sendResponseCallback({result: "Товар добавлен"});
+                    }
+                });
+        }
     });
+
 }
 
 function getProductTable(renderCallback) {

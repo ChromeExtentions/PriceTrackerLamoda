@@ -177,7 +177,7 @@ function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
 
 function sendProductInfo(forSave) {
     chrome.runtime.sendMessage( forSave , function(response) {
-        var msg = typeof response.result == 'undefined' ? "Произошла ошибка. Попробуйте еще раз." : response.result;
+        var msg = isEmpty(response.result) ?  "Произошла ошибка. Попробуйте еще раз." : response.result;
         $('#trackProductLabelTd').text(response.result);
     });
 }

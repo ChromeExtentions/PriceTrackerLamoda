@@ -1,5 +1,6 @@
 ;
-// Настройки расширения
+// Загрузка настроек расширения
+window.settings = {};
 applySettings();
 
 var alarmInfo = chrome.storage.local.get('priceChecker_task', function() {});
@@ -24,12 +25,14 @@ chrome.runtime.onMessage.addListener(
         }
         catch(err) {
             sendResponse( { result: "Произошла ошибка. Попробуйте еще раз." } );
+            return;
         }
+        return true;
     }
 );
 
 function applySettings() {
-    var settings = {
+    window.settings = {
         updateInterval: '8',
         changeThresholdUnitRub: 100,
         changeThresholdUnitPercent: 4,
@@ -41,7 +44,7 @@ function applySettings() {
         maxPriceToShow: 10,
         maxProductCount: 60
     };
-    chrome.storage.sync.set( settings , function(result) {
+    chrome.storage.sync.set( window.settings , function(result) {
         var i=0;
     });
 }
