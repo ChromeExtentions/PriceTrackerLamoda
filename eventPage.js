@@ -19,30 +19,18 @@ chrome.alarms.onAlarm.addListener(
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-
         try {
-            //loadImg(request.imgSrc);
-            //addProduct(request, sendResponse);
+            addProduct(request, sendResponse);
         }
         catch(err) {
             sendResponse( { result: "Произошла ошибка. Попробуйте еще раз." } );
         }
-
-        // if(typeof request.notify != 'undefined') {
-        //     var opt = {
-        //         type: "basic",
-        //         title: "Primary Title",
-        //         message: "Primary message to display",
-        //         iconUrl: "icon.png"
-        //     };
-        //     chrome.notifications.create(opt);
-        // }
     }
 );
 
 function applySettings() {
     var settings = {
-        updateInterval: '8h',
+        updateInterval: '8',
         changeThresholdUnitRub: 100,
         changeThresholdUnitPercent: 4,
         changeThresholdUnit: 'rouble',
@@ -50,29 +38,14 @@ function applySettings() {
         trackIfMissing: true,
         missingCheckPeriod: 7,
         missingCheckTimes: 4,
-        maxPriceToShow: 10
+        maxPriceToShow: 10,
+        maxProductCount: 60
     };
-    chrome.storage.sync.set( settings , function() {});
+    chrome.storage.sync.set( settings , function(result) {
+        var i=0;
+    });
 }
 
-
-
-function bufferToBase64(buf) {
-    var binstr = Array.prototype.map.call(buf, function (ch) {
-        return String.fromCharCode(ch);
-    }).join('');
-    return btoa(binstr);
-}
-
-function _base64ToArrayBuffer(base64) {
-    var binary_string =  window.atob(base64);
-    var len = binary_string.length;
-    var bytes = new Uint8Array( len );
-    for (var i = 0; i < len; i++)        {
-        bytes[i] = binary_string.charCodeAt(i);
-    }
-    return bytes.buffer;
-}
 
 function updatePrices() {
     var url = 'https://market.yandex.ru/product/13925684?show-uid=849459940624320842016001&nid=56181';
@@ -137,6 +110,21 @@ function getProducts() {
         ]
     }
 }
-
-
-
+//
+//function bufferToBase64(buf) {
+//    var binstr = Array.prototype.map.call(buf, function (ch) {
+//        return String.fromCharCode(ch);
+//    }).join('');
+//    return btoa(binstr);
+//}
+//
+//function _base64ToArrayBuffer(base64) {
+//    var binary_string =  window.atob(base64);
+//    var len = binary_string.length;
+//    var bytes = new Uint8Array( len );
+//    for (var i = 0; i < len; i++)        {
+//        bytes[i] = binary_string.charCodeAt(i);
+//    }
+//    return bytes.buffer;
+//}
+//

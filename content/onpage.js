@@ -26,14 +26,25 @@ function addTrackButton() {
             bindClickEventListener();
 
             $('#trackProductContainerDiv').css("top", topButtonCoord);
-            $('#trackProductContainerTTT').css("top", topButtonCoord-100);
-
 
         });
     }
     else {
+
+        // Временно - куда-то делся консультант
+        var buttonPath = chrome.extension.getURL("content/trackButton.html");
+        $.get(buttonPath, function(data){
+
+            $('body').append(data);
+
+            setLogoImagePath();
+            bindClickEventListener();
+
+            $('#trackProductContainerDiv').css("top", 0);
+        });
+
         // keep trying until lamoda consultant container loads
-        setTimeout( addTrackButton, 1000);
+        //setTimeout( addTrackButton, 1000);
     }
 }
 
@@ -59,8 +70,8 @@ function bindClickEventListener() {
         };
 
 
-        var ifr = '<iframe id="ifrb" src="' + imgSrc + '"></iframe>';
-        $('body').append(ifr);
+        //var ifr = '<iframe id="ifrb" src="' + imgSrc + '"></iframe>';
+        //$('body').append(ifr);
 
 
         resizeImgAndStoreProduct( forSave, imgSrc, 80, 80)
@@ -69,30 +80,28 @@ function bindClickEventListener() {
 
 function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
 {
-    $('#ifrb').append('<canvas id="resizedCanvas" style="display: none;"></canvas></div>');
+    $('body').append('<canvas id="resizedCanvas" style="display: none;"></canvas></div>');
 
     forSave.imgSrc = imgSrc;
-    sendProductInfo(forSave);
+    //sendProductInfo(forSave);
 
     var img = new Image();
-    img.crossOrigin = 'Anonymous';
+    //img.crossOrigin = 'Anonymous';
     img.onload = function() {
         var can = document.getElementById('resizedCanvas');
         var ctx = can.getContext('2d');
         ctx.drawImage(img, 0, 0);
+        forSave.imgBase64Big = can.toDataURL();
 
-        // We create a canvas and get its context.
-        var canvas = document.getElementById('resizedCanvas');
         ctx = can.getContext('2d');
 
         // We set the dimensions at the wanted size.
-        canvas.width = wantedWidth;
-        canvas.height = wantedHeight;
+        can.width = wantedWidth;
+        can.height = wantedHeight;
 
-        // We resize the image with the canvas method drawImage();
         ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
 
-        forSave.imgBase64 = canvas.toDataURL();
+        forSave.imgBase64 = can.toDataURL();
 
         //------ Send product data to extention ---------
         sendProductInfo(forSave);
@@ -100,41 +109,11 @@ function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
 
     img.src = imgSrc;
 
-    ////$('body').append('<img id="resizedImg" style="display: none;"/></div>');
-    //
-    //// We create an image to receive the Data URI
-    ////var img = document.getElementById('resizedImg');
-    //var img = new Image();
-    //
-    //img.crossOrigin = "Anonymous";
-    //// When the event "onload" is triggered we can resize the image.
-    //img.onload = function()
-    //{
-    //    // We create a canvas and get its context.
-    //    var canvas = document.getElementById('resizedCanvas');
-    //    var ctx = canvas.getContext('2d');
-    //
-    //    // We set the dimensions at the wanted size.
-    //    canvas.width = wantedWidth;
-    //    canvas.height = wantedHeight;
-    //
-    //    // We resize the image with the canvas method drawImage();
-    //    ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
-    //
-    //    forSave.imgBase64 = canvas.toDataURL();
-    //
-    //    //------ Send product data to extention ---------
-    //    sendProductInfo(forSave);
-    //};
-    //
-    //// We put the Data URI in the image's src attribute
-    //img.crossOrigin = "Anonymous";
-    //img.src = imgSrc;
-    //img.crossOrigin = "Anonymous";
 }
 
 function sendProductInfo(forSave) {
     chrome.runtime.sendMessage( forSave , function(response) {
+        var msg = typeof response.result == 'undefined' ? "Произошла ошибка. Попробуйте еще раз." : response.result;
         $('#trackProductLabelTd').text(response.result);
     });
 }

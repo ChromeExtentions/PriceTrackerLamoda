@@ -19,7 +19,7 @@
 	  "default_title": "Open"
   },
   "background": {
-      "scripts": [ "lib/jquery-3.1.1.min.js", "productStorageUtil.js", "eventPage.js" ],
+      "scripts": [ "lib/jquery-3.1.1.min.js", "storageUtil.js", "eventPage.js" ],
       "persistent": false
   },
   "content_scripts": [
