@@ -17,6 +17,7 @@
       "default_icon": "img/la64.png",
       "default_popup": "popup/pricetable.html",
 	  "default_title": "Open"
+
   },
   "background": {
       "scripts": [ "lib/jquery-3.1.1.min.js", "storageUtil.js", "eventPage.js" ],

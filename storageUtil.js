@@ -3,7 +3,12 @@ function addProduct(request, sendResponseCallback) {
 
     chrome.storage.sync.get( ['updateInterval', 'maxProductCount', 'maxPriceToShow'], function(settings) {
 
-        chrome.storage.local.get( 'productList', function(productList) {
+        chrome.storage.local.get( 'productList', function(result) {
+
+            var productList = result.productList;
+            if(typeof productList == 'undefined') {
+                productList = {};
+            }
 
             var productCount = productList.length;
             if(productCount >= settings.maxProductCount) {
@@ -27,7 +32,7 @@ function addProduct(request, sendResponseCallback) {
                 }
                 productList[id] = product;
 
-                chrome.storage.local.set( productList,
+                chrome.storage.local.set( { productList: productList },
                     function() {
                         if(typeof chrome.runtime.lastError != 'undefined') {
                             sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
@@ -54,6 +59,28 @@ function addProduct(request, sendResponseCallback) {
                     });
             }
         });
+    });
+}
+
+function getProductTable(callback) {
+    chrome.storage.local.get( ['productList', 'productPrices'], function(result) {
+
+        if(typeof result == 'undefined' || result == null || result.length == 0
+            || typeof result.productPrices == 'undefined' || result.productPrices == null || result.productPrices.length == 0) {
+            return [];
+        }
+
+        var productTable = [];
+        Object.keys(result.productList).forEach(function(key) {
+            var value = result.productList[key];
+            var code = value.code;
+            var name = value.name;
+
+            var id = 'priceChecker_' + value.code;
+            var prices = result.productPrices[id];
+            productTable.push( { code: code, name: name, prices: prices } );
+        });
+        callback(productTable);
     });
 }
 

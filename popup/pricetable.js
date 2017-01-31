@@ -1,14 +1,45 @@
 ;
 
-
+var itemTemplate = '';
 $.get('priceTableItem.html', function(result) {
-    $('#mainTableBody').append(result);
-    $('#mainTableBody').append(result);
-    $('#mainTableBody').append(result);
-    $('#mainTableBody').append(result);
-    $('#mainTableBody').append(result);
-    $('#mainTableBody').append(result);
+
+    itemTemplate = result;
+    getProductTable(renderCallback);
+
 });
+
+var renderCallback = function(productTable) {
+
+
+
+    for(var i=0; i<productTable.length; i++) {
+        var itemHtml =  $( (' ' + itemTemplate).slice(1) );
+        var tdPriceOld = itemHtml.find('.productPriceOld')[0];
+        var tdPriceNew = itemHtml.find('.productPriceNew')[0];
+        var tdName = itemHtml.find('.productName')[0];
+        var rowId = itemHtml.find('.data-id')[0];
+
+        $(rowId).val(productTable[i].code);
+
+        var prices = productTable[i].prices;
+        var oldPrice = 0.0;
+        var newPrice = 0.0;
+        if(prices.length > 1) {
+            oldPrice = prices[prices.length-2];
+        }
+        newPrice = prices[prices.length-1];
+
+        $(tdName).text(productTable[i].name);
+        $(tdPriceOld).text("Было " + oldPrice + " руб.");
+        $(tdPriceNew).text("Стало " + newPrice + " руб.");
+
+        $('#mainTableBody').append(itemHtml);
+    }
+
+};
+
+
+
 //var html = load('priceTableItem.html');
 
 //for(var i=0; i<6; i++) {
