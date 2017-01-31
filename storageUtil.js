@@ -33,22 +33,23 @@ function addProduct(request, sendResponseCallback) {
                             sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
                         }
                         else {
-                            chrome.storage.local.get( 'productPrices', function(productPrices) {
+                            chrome.storage.local.get( 'productPrices', function(res) {
+                                var productPrices = res.productPrices;
                                 if(typeof productPrices == 'undefined') {
                                     productPrices = {}
                                 }
-                                updatePrices(productPrices, id, request.price, settings.maxPriceToShow);
-                            });
+                                updateProductPrices(productPrices, id, request.price, settings.maxPriceToShow);
 
-                            chrome.storage.local.set( {id:  [ request.price ] },
-                                function() {
-                                    if(typeof chrome.runtime.lastError != 'undefined') {
-                                        sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
-                                    }
-                                    else {
-                                        sendResponseCallback({result: "Товар добавлен"});
-                                    }
-                                });
+                                chrome.storage.local.set( { productPrices: productPrices },
+                                    function() {
+                                        if(typeof chrome.runtime.lastError != 'undefined') {
+                                            sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
+                                        }
+                                        else {
+                                            sendResponseCallback({result: "Товар добавлен"});
+                                        }
+                                    });
+                            });
                         }
                     });
             }
@@ -67,14 +68,17 @@ function removeProduct(id, sendResponseCallback) {
 
 
 //===================================== HELPERS ==============================================
-function updatePrices(productPrices, id, newPrice, maxPrices) {
+function updateProductPrices(productPrices, id, newPrice, maxPrices) {
     var priceArray = productPrices[id];
-    if(priceArray.length == 0) {
+    if(typeof priceArray == 'undefined' || priceArray.length == 0) {
+        priceArray = [];
         priceArray.push(newPrice);
+        productPrices[id] = priceArray;
         return;
     }
     if(newPrice == null ) {
         if(priceArray[priceArray.length-1] == null) {
+            productPrices[id] = priceArray;
             return;
         }
         else {
@@ -89,7 +93,9 @@ function updatePrices(productPrices, id, newPrice, maxPrices) {
             if(priceArray.length >= maxPrices) {
                 priceArray = priceArray.slice(1);
             }
-            priceArray.push(newPrice);
+            if(priceArray[priceArray.length-1] != newPrice) {
+                priceArray.push(newPrice);
+            }
         }
     }
     productPrices[id] = priceArray;
