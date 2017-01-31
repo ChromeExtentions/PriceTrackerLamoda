@@ -1,35 +1,43 @@
 ;
-// Загрузка настроек расширения
-window.settings = {};
-applySettings();
 
-var alarmInfo = chrome.storage.local.get('priceChecker_task', function() {});
-if(typeof alarmInfo == 'undefined' || alarmInfo == null || alarmInfo.periodInMinutes == 'undefined' || alarmInfo.periodInMinutes == null) {
-    alarmInfo = { when: 1000, periodInMinutes: 1 };
-    chrome.alarms.create('priceChecker', alarmInfo);
-    chrome.storage.local.set( {'priceChecker_task':  alarmInfo });
+//--- Загрузка настроек расширения
+    window.settings = {};
+    applySettings();
+
+//--- Запуск периодической фоновой задачи (выполняется каждую минуту)
+    addAlarm();
+
+//--- Слушатель запуска фоновой задачи
+    chrome.alarms.onAlarm.addListener(onAlarmListener);
+
+//--- Слушатель входящих сообщений (с сайта: добавить товар)
+    chrome.runtime.onMessage.addListener(onMessageListener);
+
+function addAlarm() {
+    var alarmInfo = chrome.storage.local.get('priceChecker_task', function() {});
+    if(typeof alarmInfo == 'undefined' || alarmInfo == null || alarmInfo.periodInMinutes == 'undefined' || alarmInfo.periodInMinutes == null) {
+        alarmInfo = { when: 1000, periodInMinutes: 1 };
+        chrome.alarms.create('priceChecker', alarmInfo);
+        chrome.storage.local.set( {'priceChecker_task':  alarmInfo });
+    }
 }
-chrome.alarms.onAlarm.addListener(
-    function() {
-        //updatePrices();
-        chrome.storage.local.get('priceChecker_test', function(result) {
-            // alert(result.priceChecker_test);
-        });
-    }
-);
 
-chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-        try {
-            addProduct(request, sendResponse);
-        }
-        catch(err) {
-            sendResponse( { result: "Произошла ошибка. Попробуйте еще раз." } );
-            return;
-        }
-        return true;
+function onAlarmListener() {
+    getProductUpdateList();
+    updatePrices();
+    fireNotifications();
+}
+
+function onMessageListener(request, sender, sendResponse) {
+    try {
+        addProduct(request, sendResponse);
     }
-);
+    catch(err) {
+        sendResponse( { result: "Произошла ошибка. Попробуйте еще раз." } );
+        return;
+    }
+    return true;
+}
 
 function applySettings() {
     window.settings = {
@@ -51,27 +59,27 @@ function applySettings() {
 
 
 function updatePrices() {
-    var url = 'https://market.yandex.ru/product/13925684?show-uid=849459940624320842016001&nid=56181';
-    if( !lockUpdate() ) {
-        return;
-    }
-    $.ajax(
-        {
-            type: 'GET',
-            url: url
-        }
-    ).done(
-        function(data) {
-            var i=0;
-        }
-    ).fail(
-        function() {
-        }
-    ).always(
-        function() {
-            unlockUpdate();
-        }
-    );
+
+    // if( !lockUpdate() ) {
+    //     return;
+    // }
+    // $.ajax(
+    //     {
+    //         type: 'GET',
+    //         url: url
+    //     }
+    // ).done(
+    //     function(data) {
+    //         var i=0;
+    //     }
+    // ).fail(
+    //     function() {
+    //     }
+    // ).always(
+    //     function() {
+    //         unlockUpdate();
+    //     }
+    // );
 }
 
 function lockUpdate() {
@@ -101,18 +109,18 @@ function unlockUpdate() {
     chrome.storage.local.set( {'priceChecker_updateObject':  updateObj });
 }
 
-function getProducts() {
-    var products = chrome.storage.local.get('priceChecker_products', function() {});
-    if(typeof products == 'undefined' || products == null) {
-        products = [
-            {
-                "name": "",
-                "price": 0.0,
-                "url": ""
-            }
-        ]
-    }
-}
+// function getProducts() {
+//     var products = chrome.storage.local.get('priceChecker_products', function() {});
+//     if(typeof products == 'undefined' || products == null) {
+//         products = [
+//             {
+//                 "name": "",
+//                 "price": 0.0,
+//                 "url": ""
+//             }
+//         ]
+//     }
+// }
 //
 //function bufferToBase64(buf) {
 //    var binstr = Array.prototype.map.call(buf, function (ch) {
