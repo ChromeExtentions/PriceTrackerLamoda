@@ -14,6 +14,24 @@ onAlarmListener();
 //--- Слушатель входящих сообщений (с сайта: добавить товар)
     chrome.runtime.onMessage.addListener(onMessageListener);
 
+function applySettings() {
+    window.settings = {
+        updateInterval: '8',
+        changeThresholdUnitRub: 100,
+        changeThresholdUnitPercent: 4,
+        changeThresholdUnit: 'rouble',
+        missingAfterDays: 7,
+        trackIfMissing: true,
+        missingCheckPeriod: 7,
+        missingCheckTimes: 4,
+        maxPriceToShow: 10,
+        maxProductCount: 60,
+        maxProductCountUpdatePerTime: 5
+    };
+    chrome.storage.sync.set( window.settings , function(result) {
+    });
+}
+
 function addAlarm() {
     var alarmInfo = chrome.storage.local.get('priceChecker_task', function() {});
     if(typeof alarmInfo == 'undefined' || alarmInfo == null || alarmInfo.periodInMinutes == 'undefined' || alarmInfo.periodInMinutes == null) {
@@ -42,22 +60,8 @@ function onMessageListener(request, sender, sendResponse) {
     return true;
 }
 
-function applySettings() {
-    window.settings = {
-        updateInterval: '8',
-        changeThresholdUnitRub: 100,
-        changeThresholdUnitPercent: 4,
-        changeThresholdUnit: 'rouble',
-        missingAfterDays: 7,
-        trackIfMissing: true,
-        missingCheckPeriod: 7,
-        missingCheckTimes: 4,
-        maxPriceToShow: 10,
-        maxProductCount: 60,
-        maxProductCountUpdatePerTime: 5
-    };
-    chrome.storage.sync.set( window.settings , function(result) {
-    });
+function fireNotifications() {
+
 }
 
 function downloadProductUpdates(productUpdateList){
@@ -80,10 +84,6 @@ function downloadProductUpdates(productUpdateList){
             }
         );
     });
-}
-
-function fireNotifications() {
-
 }
 
 function loadProduct(params) {

@@ -85,7 +85,7 @@ function getProductTable(renderCallback) {
     });
 }
 
-function removeProduct(id, renderCallback, sendResponseCallback) {
+function removeProduct(id, renderCallback) {
     chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
 
         if(!isEmpty(productData) && isEmpty(productData.productList) && isEmpty(productData.productPrices)) {
@@ -127,10 +127,6 @@ function getProductUpdateList() {
             var productList = productData.productList;
             if(typeof productList == 'undefined') {
                 productList = {};
-            }
-            var productPrices = productData.productPrices;
-            if(isEmpty(productPrices)) {
-                productPrices = {};
             }
 
             var trackList = [];
@@ -206,12 +202,7 @@ function updatePricesFromSite(updateList) {
 
             chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices },
                 function() {
-                    if(typeof chrome.runtime.lastError != 'undefined') {
-                        //sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
-                    }
-                    else {
-                        resolve(changes);
-                    }
+                    resolve(changes);
                 });
         });
     });
