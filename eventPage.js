@@ -9,7 +9,7 @@ onAlarmListener();
     addAlarm();
 
 //--- Слушатель запуска фоновой задачи
-//    chrome.alarms.onAlarm.addListener(onAlarmListener);
+   chrome.alarms.onAlarm.addListener(onAlarmListener);
 
 //--- Слушатель входящих сообщений (с сайта: добавить товар)
     chrome.runtime.onMessage.addListener(onMessageListener);
@@ -42,11 +42,13 @@ function addAlarm() {
 }
 
 function onAlarmListener() {
-    getProductUpdateList()
-        .then(randomizeProductUpdateTime)
-        .then(downloadProductUpdates)
-        .then(updatePricesFromSite)
-    //    .then(fireNotifications(productUpdateList));
+    fireNotifications({});
+
+    // getProductUpdateList()
+    //     .then(randomizeProductUpdateTime)
+    //     .then(downloadProductUpdates)
+    //     .then(updatePricesFromSite)
+    //    .then(fireNotifications);
 }
 
 function onMessageListener(request, sender, sendResponse) {
@@ -60,8 +62,18 @@ function onMessageListener(request, sender, sendResponse) {
     return true;
 }
 
-function fireNotifications() {
+function fireNotifications(changes) {
+    var changes = [];
+    changes.push( { code: 'AAA1', oldPrice: 100, newPrice: 200 } );
+    changes.push( { code: 'AAA2', oldPrice: 200, newPrice: 300 } );
+    changes.push( { code: 'AAA3', oldPrice: 300, newPrice: 100 } );
+    changes.push( { code: 'AAA4', oldPrice: 400, newPrice: 500 } );
 
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, { changes: changes }, function(response) {
+
+        });
+    });
 }
 
 function downloadProductUpdates(productUpdateList){
