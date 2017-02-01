@@ -1,4 +1,5 @@
 ;
+onAlarmListener();
 
 //--- Загрузка настроек расширения
     window.settings = {};
@@ -8,7 +9,7 @@
     addAlarm();
 
 //--- Слушатель запуска фоновой задачи
-    chrome.alarms.onAlarm.addListener(onAlarmListener);
+//    chrome.alarms.onAlarm.addListener(onAlarmListener);
 
 //--- Слушатель входящих сообщений (с сайта: добавить товар)
     chrome.runtime.onMessage.addListener(onMessageListener);
@@ -23,9 +24,11 @@ function addAlarm() {
 }
 
 function onAlarmListener() {
-    getProductUpdateList();
-    updatePrices();
-    fireNotifications();
+    getProductUpdateList()
+        .then(randomizeProductUpdateTime)
+        .then(downloadProductUpdates)
+    //    .then(updatePrices(productUpdateList))
+    //    .then(fireNotifications(productUpdateList));
 }
 
 function onMessageListener(request, sender, sendResponse) {
@@ -50,13 +53,69 @@ function applySettings() {
         missingCheckPeriod: 7,
         missingCheckTimes: 4,
         maxPriceToShow: 10,
-        maxProductCount: 60
+        maxProductCount: 60,
+        maxProductCountUpdatePerTime: 5
     };
     chrome.storage.sync.set( window.settings , function(result) {
-        var i=0;
     });
 }
 
+function downloadProductUpdates(productUpdateList){
+    return new Promise(function(resolve, reject) {
+        if(isEmpty(productUpdateList)) {
+            resolve([]);
+        }
+
+        var params = [];
+        for(var i=0; i<productUpdateList.length; i++) {
+            params.push({
+                index: i,
+                product: productUpdateList[i]
+            });
+        }
+
+        Promise.all(params.map(loadProduct)).then(
+            function(results) {
+                resolve(results);
+            }
+        );
+    });
+}
+
+function fireNotifications() {
+
+}
+
+
+function loadProduct(params) {
+    return new Promise(function(resolve, reject) {
+        $.get(params.product.url, function(response) {
+            resolve( { code: params.product.code, price: parsePrice(response, params.product.code) } );
+        }).
+        fail(function() {
+            resolve( { code: params.product.code, price: -1 } );
+        });
+
+        //$.ajax(
+        //    {
+        //        url: params.product.url,
+        //        type: 'GET',
+        //        success: function (resultXml) {
+        //            resolve( { code: params.product.code, price: parsePrice(resultXml) } );
+        //        },
+        //        error: function () {
+        //            resolve( { code: params.product.code, price: -1 } );
+        //        }
+        //    }
+        //);
+    });
+}
+
+function parsePrice(response, productCode) {
+    var page =  $( (' ' + response).slice(1) );
+    var productDivSearchStr = 'div.ii-product[data-sku="' + productCode + '"]';
+    return $(page).find(productDivSearchStr).find('div.ii-product__price').attr('data-current');
+}
 
 function updatePrices() {
 

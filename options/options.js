@@ -64,7 +64,8 @@ function save_options() {
         missingCheckPeriod: 7,
         missingCheckTimes: $('#missingCheckTimes').val(),
         maxPriceToShow: $('#maxPriceToShow').val(),
-        maxProductCount: 60
+        maxProductCount: 60,
+        maxProductCountUpdatePerTime: 5
     };
     chrome.storage.sync.set( settings , function() {});
 }
@@ -83,7 +84,8 @@ function restore_options() {
             missingCheckPeriod: 7,
             missingCheckTimes: 4,
             maxPriceToShow: 10,
-            maxProductCount: 60
+            maxProductCount: 60,
+            maxProductCountUpdatePerTime: 5
         },
         function(items) {
             var priceThresholdUnit = items.changeThresholdUnit;

@@ -18,3 +18,9 @@ function isEmpty(obj) {
 function isDefined(obj) {
     return !(typeof obj == 'undefined' || obj == null);
 };
+
+function sleep(ms) {
+    var start = new Date().getTime(), expire = start + ms;
+    while (new Date().getTime() < expire) { }
+    return;
+}

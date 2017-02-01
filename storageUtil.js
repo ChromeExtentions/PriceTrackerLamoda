@@ -1,9 +1,6 @@
 
 function addProduct(request, sendResponseCallback) {
 
-    // chrome.storage.sync.get( ['updateInterval', 'maxProductCount', 'maxPriceToShow'], function(settings) {
-    // });
-
     var settings = window.settings;
 
     chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
@@ -44,6 +41,8 @@ function addProduct(request, sendResponseCallback) {
 
             updateProductPrices(productPrices, id, request.price, settings.maxPriceToShow);
 
+            productData.productList = productList;
+            productData.productPrices = productPrices;
             chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices },
                 function(result) {
                     if(typeof chrome.runtime.lastError != 'undefined') {
@@ -61,12 +60,16 @@ function addProduct(request, sendResponseCallback) {
 function getProductTable(renderCallback) {
     chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
         if(isEmpty(productData)) {
-            if(isEmpty(productData.productList)) {
-                productData.productList = {};
+            productData = {
+                productList: {},
+                productPrices: {}
             }
-            if(isEmpty(productData.productPrices)) {
-                productData.productPrices = {};
-            }
+        }
+        if(isEmpty(productData.productList)) {
+            productData.productList = {};
+        }
+        if(isEmpty(productData.productPrices)) {
+            productData.productPrices = {};
         }
 
         var productTable = [];
@@ -93,6 +96,8 @@ function removeProduct(id, renderCallback, sendResponseCallback) {
         delete productData.productList[id];
         delete productData.productPrices[id];
 
+        console.log(productData);
+
         chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices }, function(result) {
             if(typeof chrome.runtime.lastError != 'undefined') {
                 // sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
@@ -115,28 +120,62 @@ function removeProduct(id, renderCallback, sendResponseCallback) {
 }
 
 function getProductUpdateList() {
-    chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
 
-        var productList = productData.productList;
-        if(typeof productList == 'undefined') {
-            productList = {};
-        }
-        var productPrices = productData.productPrices;
-        if(isEmpty(productPrices)) {
-            productPrices = {};
-        }
+    return new Promise( function (resolve, reject) {
+        chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
 
-        var trackList = [];
-        Object.keys(productList).forEach(function(key) {
-            var value = productList[key];
-
-            if(isTimeToUpdate(value.nextUpdate)) {
-                var code = value.code;
-                var url = value.url;
-                trackList.push( { code: code, url: url } );
+            var productList = productData.productList;
+            if(typeof productList == 'undefined') {
+                productList = {};
             }
+            var productPrices = productData.productPrices;
+            if(isEmpty(productPrices)) {
+                productPrices = {};
+            }
+
+            var trackList = [];
+            Object.keys(productList).forEach(function(key) {
+                var value = productList[key];
+
+                if(isTimeToUpdate(value.nextUpdate)) {
+                    var code = value.code;
+                    var url = value.url;
+                    trackList.push( { code: code, url: url } );
+                }
+            });
+            resolve(trackList); // RESOLVE //
         });
-        var i=0;
+    });
+}
+
+function randomizeProductUpdateTime(productUpdateList) {
+
+    return new Promise( function (resolve, reject) {
+
+        if(isEmpty(productUpdateList)) {
+            return;
+        }
+
+        var MAX_PRODUCTS = settings.maxProductCountUpdatePerTime;
+
+        chrome.storage.local.get( ['productList'], function(productData) {
+
+            var productList = productData.productList;
+            if(typeof productList == 'undefined') {
+                productList = {};
+            }
+
+            var subListForRandomize = productUpdateList.slice(MAX_PRODUCTS);
+            var resultUpdateList = productUpdateList.slice(0, MAX_PRODUCTS);
+
+            for(var i=0; i<subListForRandomize.length; i++) {
+                subListForRandomize[i].nextUpdate = newRandomUpdateTime().toString();
+                productList[subListForRandomize[i].code] = subListForRandomize[i];
+            }
+            chrome.storage.local.set( { productList : productData.productList }, function(result) {
+                resolve(resultUpdateList); // RESOLVE //
+            });
+        });
     });
 }
 
@@ -181,7 +220,11 @@ function isTimeToUpdate(dateStringIn) {
 }
 
 function calcUpdateTime(updateInterval) {
-    var nextUpdate = new Date();
-    nextUpdate.setHours( nextUpdate.getHours() + new Number(updateInterval) );
-    return nextUpdate;
+    var currentInMillis = new Date().getTime();
+    return new Date(currentInMillis + (new Number(updateInterval))*3600000 + Math.round(3600000*Math.random()));
+}
+
+function newRandomUpdateTime() {
+    var currentInMillis = new Date().getTime();
+    return new Date(currentInMillis + 3600000*Math.random());
 }
