@@ -27,7 +27,7 @@ function onAlarmListener() {
     getProductUpdateList()
         .then(randomizeProductUpdateTime)
         .then(downloadProductUpdates)
-    //    .then(updatePrices(productUpdateList))
+        .then(updatePricesFromSite)
     //    .then(fireNotifications(productUpdateList));
 }
 
@@ -86,28 +86,15 @@ function fireNotifications() {
 
 }
 
-
 function loadProduct(params) {
     return new Promise(function(resolve, reject) {
+        sleep(params.index * 2000);
         $.get(params.product.url, function(response) {
             resolve( { code: params.product.code, price: parsePrice(response, params.product.code) } );
         }).
         fail(function() {
             resolve( { code: params.product.code, price: -1 } );
         });
-
-        //$.ajax(
-        //    {
-        //        url: params.product.url,
-        //        type: 'GET',
-        //        success: function (resultXml) {
-        //            resolve( { code: params.product.code, price: parsePrice(resultXml) } );
-        //        },
-        //        error: function () {
-        //            resolve( { code: params.product.code, price: -1 } );
-        //        }
-        //    }
-        //);
     });
 }
 

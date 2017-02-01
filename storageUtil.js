@@ -16,7 +16,7 @@ function addProduct(request, sendResponseCallback) {
             return;
         }
         else {
-            var nextUpdate = calcUpdateTime(settings.updateInterval);
+            var nextUpdate = newUpdateTime(settings.updateInterval);
             var product = {
                 name: request.name,
                 code: request.code,
@@ -150,6 +150,8 @@ function getProductUpdateList() {
 
 function randomizeProductUpdateTime(productUpdateList) {
 
+    var settings = window.settings;
+
     return new Promise( function (resolve, reject) {
 
         if(isEmpty(productUpdateList)) {
@@ -179,23 +181,69 @@ function randomizeProductUpdateTime(productUpdateList) {
     });
 }
 
+//  updateList -> [ { code: code, price: newPrice } ]
+function updatePricesFromSite(updateList) {
+
+    var settings = window.settings;
+
+    return new Promise(function(resolve, reject){
+        chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
+
+            var productPrices = productData.productPrices;
+            if(isEmpty(productPrices)) {
+                productPrices = {};
+            }
+
+            var changes = [];
+            for(var i=0; i<updateList.length; i++) {
+                var change = updateProductPrices(productPrices, updateList[i].code, new Number(updateList[i].price), settings.maxPriceToShow);
+                productData.productList[updateList[i].code].nextUpdate =  newUpdateTime(settings.updateInterval).toString();
+                if(!isEmpty(change)) {
+                    changes.push(change);
+                }
+            }
+            productData.productPrices = productPrices;
+
+            chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices },
+                function() {
+                    if(typeof chrome.runtime.lastError != 'undefined') {
+                        //sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
+                    }
+                    else {
+                        resolve(changes);
+                    }
+                });
+        });
+    });
+}
 
 //===================================== HELPERS ==============================================
 function updateProductPrices(productPrices, id, newPrice, maxPrices) {
+    var change = {
+        code: null,
+        oldPrice: 0,
+        newPrice: 0
+    };
+
     var priceArray = productPrices[id];
     if(typeof priceArray == 'undefined' || priceArray.length == 0) {
         priceArray = [];
         priceArray.push(newPrice);
         productPrices[id] = priceArray;
-        return;
+        return null;
     }
     if(newPrice == null ) {
         if(priceArray[priceArray.length-1] == null) {
             productPrices[id] = priceArray;
-            return;
+            return null;
         }
         else {
             priceArray.push(null);
+            change = {
+                code: id,
+                oldPrice: priceArray.length > 1 ? priceArray[1] : 0,
+                newPrice: priceArray[priceArray.length-1]
+            };
         }
     }
     else {
@@ -208,10 +256,20 @@ function updateProductPrices(productPrices, id, newPrice, maxPrices) {
             }
             if(priceArray[priceArray.length-1] != newPrice) {
                 priceArray.push(newPrice);
+                productPrices[id] = priceArray;
+            }
+            else {
+                return null;
             }
         }
+        change = {
+            code: id,
+            oldPrice: priceArray.length > 1 ? priceArray[1] : 0,
+            newPrice: priceArray[priceArray.length-1]
+        };
     }
     productPrices[id] = priceArray;
+    return change;
 }
 
 function isTimeToUpdate(dateStringIn) {
@@ -219,7 +277,7 @@ function isTimeToUpdate(dateStringIn) {
     return current.getTime() < Date.parse(dateStringIn);
 }
 
-function calcUpdateTime(updateInterval) {
+function newUpdateTime(updateInterval) {
     var currentInMillis = new Date().getTime();
     return new Date(currentInMillis + (new Number(updateInterval))*3600000 + Math.round(3600000*Math.random()));
 }
