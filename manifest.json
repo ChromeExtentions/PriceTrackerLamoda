@@ -31,7 +31,10 @@
   ],
   "web_accessible_resources": [
       "content/trackButton.html",
-      "img/logo.jpg"
+      "content/notification.html",
+      "lib/bootstrap.min.css",
+      "img/logo.jpg",
+      "img/close.png"
   ],
   "options_page": "options/options.html",
   "permissions": [

@@ -6,6 +6,9 @@ $( function() {
         addTrackButton();
     }
 
+    var linkToBootstrap = '<link rel="stylesheet" href="' + chrome.extension.getURL("lib/bootstrap.min.css") + '">';
+    $('head').append(linkToBootstrap);
+
 });
 
 function addTrackButton() {
@@ -74,7 +77,34 @@ function bindClickEventListener() {
         //$('body').append(ifr);
 
 
-        resizeImgAndStoreProduct( forSave, imgSrc, 80, 80)
+        //resizeImgAndStoreProduct( forSave, imgSrc, 80, 80)
+
+        showNotifications([]);
+    });
+}
+
+function showNotifications(changes) {
+    var notificationPath = chrome.extension.getURL("content/notification.html");
+
+    $.get(notificationPath, function(result) {
+
+        var notificationTemplate = $(result);
+
+        var code = 111;
+        notificationTemplate.find('input.data-id').val(code);
+        notificationTemplate.find('img.closeImg').attr('src', chrome.extension.getURL("img/close.png")).attr('data-id', code);
+        notificationTemplate.hide();
+
+        var bottom = $('div.footer__sticky').height() + 'px';
+
+        $('body').append(notificationTemplate);
+        $('body').find('.closeNotification').click(function(e) {
+            e.preventDefault();
+            var code = e.target.attributes['data-id'];
+            $('.notificationContainerDiv').has('input.data-id[value="' + code.value + '"]').remove();
+
+        });
+        $('body').find('.notificationContainerDiv').css("bottom", bottom).fadeIn();
     });
 }
 
