@@ -56,6 +56,8 @@ function setLogoImagePath() {
     $('#trackProductContainerDiv').find("#logoImage").attr("src", imgPath);
 }
 
+window.tmpCode = 111; //DELETE
+
 function bindClickEventListener() {
     $('#trackButton').click(function(e) {
         var productDiv = $('div.ii-product');
@@ -79,33 +81,89 @@ function bindClickEventListener() {
 
         //resizeImgAndStoreProduct( forSave, imgSrc, 80, 80)
 
-        showNotifications([]);
+
+
+        var notificationPath = chrome.extension.getURL("content/notification.html");
+        $.get(notificationPath, function(result) {
+            var change = { code: window.tmpCode};
+            addNotification(result, change);
+            window.tmpCode++;
+        });
+
     });
 }
 
-function showNotifications(changes) {
-    var notificationPath = chrome.extension.getURL("content/notification.html");
+function addNotification(template, change) {
 
-    $.get(notificationPath, function(result) {
+    var visibleNotifications = $('.notificationContainerDiv');
 
-        var notificationTemplate = $(result);
+    var bottomPanelHeight = $('div.footer__sticky').height();
+    var spacePx = 3;
+    var nextBottomCoord = bottomPanelHeight + spacePx;
 
-        var code = 111;
-        notificationTemplate.find('input.data-id').val(code);
-        notificationTemplate.find('img.closeImg').attr('src', chrome.extension.getURL("img/close.png")).attr('data-id', code);
-        notificationTemplate.hide();
+    var i=0;
+    var maxBottom = 0;
+    while(i<visibleNotifications.length) {
+        var currentBottom = Number( $(visibleNotifications[i]).css('bottom').replace(/[a-zA-Z]/g, "") );
+        maxBottom = currentBottom > maxBottom ? currentBottom : maxBottom;
+        i++;
+    }
 
-        var bottom = $('div.footer__sticky').height() + 'px';
+    switch(visibleNotifications.length) {
+        case 0:
+            break;
+        case 1:
+        case 2:
+            nextBottomCoord = maxBottom + $(visibleNotifications[0]).height() + spacePx;
+            break;
+        default:
+            nextBottomCoord = maxBottom;
+    }
+    nextBottomCoord += 'px';
 
-        $('body').append(notificationTemplate);
-        $('body').find('.closeNotification').click(function(e) {
-            e.preventDefault();
-            var code = e.target.attributes['data-id'];
-            $('.notificationContainerDiv').has('input.data-id[value="' + code.value + '"]').remove();
+    var notificationTemplate = $(template);
 
-        });
-        $('body').find('.notificationContainerDiv').css("bottom", bottom).fadeIn();
+    var code = change.code;
+    notificationTemplate.find('input.data-id').val(code);
+    notificationTemplate.find('img.closeImg').attr('src', chrome.extension.getURL("img/close.png")).attr('data-id', code);
+    notificationTemplate.hide();
+
+    $('body').append(notificationTemplate);
+
+    $('body').find('.closeNotification').click(function(e) {
+        e.preventDefault();
+        var code = e.target.attributes['data-id'];
+        var notificationToRemove = $('.notificationContainerDiv').has('input.data-id[value="' + code.value + '"]');
+
+        if(isEmpty(notificationToRemove)) {
+            return;
+        }
+
+        var removedNotificationBottom = Number( $(notificationToRemove).css('bottom').replace(/[a-zA-Z]/g, "") );
+        $(notificationToRemove).remove();
+
+        var i=0;
+        var visibleNotificationsInner = $('.notificationContainerDiv');
+        while(i<visibleNotificationsInner.length) {
+            var currentBottom = Number( $(visibleNotificationsInner[i]).css('bottom').replace(/[a-zA-Z]/g, "") );
+            if(currentBottom > removedNotificationBottom) {
+                var newBottomCoord = currentBottom - $(visibleNotificationsInner[0]).height() - spacePx;
+                newBottomCoord += 'px';
+                $(visibleNotificationsInner[i]).css("bottom", newBottomCoord);
+            }
+            i++;
+        }
     });
+
+    var lamodaConsultantContainer = $('#cleversite_clever_container');
+    var rightCoord = 0;
+    if(!isEmpty(lamodaConsultantContainer)) {
+        rightCoord = $(lamodaConsultantContainer).width();
+    }
+    rightCoord += 'px';
+
+    var searchDiv = 'input.data-id[value="' + code + '"]';
+    $('.notificationContainerDiv').has(searchDiv).css("bottom", nextBottomCoord).css('right',rightCoord).fadeIn();
 }
 
 function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
