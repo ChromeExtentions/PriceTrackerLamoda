@@ -1,16 +1,19 @@
 ;
 $( function() {
 
-    // has product div container
-    if( $('div.ii-product').length > 0 ) {
-        addTrackButton();
+    if(document.domain == 'www.lamoda.ru') {
+        //==================== ТОЛЬКО ЕСЛИ LAMODA! ===================================================
+        // has product div container
+
+        //var linkToBootstrap = '<link rel="stylesheet" href="' + chrome.extension.getURL("lib/bootstrap.min.css") + '">';
+        //$('head').append(linkToBootstrap);
+
+        if( $('div.ii-product').length > 0 ) {
+            addTrackButton();
+        }
+        //==================== ТОЛЬКО ЕСЛИ LAMODA! ===================================================
     }
-
-    var linkToBootstrap = '<link rel="stylesheet" href="' + chrome.extension.getURL("lib/bootstrap.min.css") + '">';
-    $('head').append(linkToBootstrap);
-
     chrome.runtime.onMessage.addListener(notificationListener);
-
 });
 
 function notificationListener(request, sender, sendResponse) {
@@ -93,9 +96,9 @@ function addNotification(template, change) {
 
     var visibleNotifications = $('.notificationContainerDiv');
 
-    var bottomPanelHeight = $('div.footer__sticky').height();
+    //var bottomPanelHeight = $('div.footer__sticky').height();
     var spacePx = 3;
-    var nextBottomCoord = bottomPanelHeight + spacePx;
+    var nextBottomCoord = spacePx;
 
     var i=0;
     var maxBottom = 0;
@@ -122,7 +125,7 @@ function addNotification(template, change) {
     var code = change.code;
     notificationTemplate.find('input.data-id').val(code);
     notificationTemplate.find('img.closeImg').attr('src', chrome.extension.getURL("img/close.png")).attr('data-id', code);
-    notificationTemplate.hide();
+    //notificationTemplate.hide();
 
     $('body').append(notificationTemplate);
 
@@ -151,15 +154,8 @@ function addNotification(template, change) {
         }
     });
 
-    var lamodaConsultantContainer = $('#cleversite_clever_container');
-    var rightCoord = 0;
-    if(!isEmpty(lamodaConsultantContainer)) {
-        rightCoord = $(lamodaConsultantContainer).width();
-    }
-    rightCoord += 'px';
-
     var searchDiv = 'input.data-id[value="' + code + '"]';
-    $('.notificationContainerDiv').has(searchDiv).css("bottom", nextBottomCoord).css('right',rightCoord).fadeIn();
+    $('.notificationContainerDiv').has(searchDiv).css("bottom", nextBottomCoord).fadeIn();
 }
 
 function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)

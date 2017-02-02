@@ -40,8 +40,17 @@ var renderProductTable = function(productTable, itemTemplate) {
 
 
         $(tdName).text(productTable[i].name);
+
+        if(oldPrice == null) {
+            newPrice = "Товар отсутствует";
+        }
         $(tdPriceOld).text("Было " + oldPrice + " руб.");
+
+        if(newPrice == null) {
+            newPrice = "Товар отсутствует";
+        }
         $(tdPriceNew).text("Стало " + newPrice + " руб.");
+
         $(removeButton).attr("data-id", productTable[i].code);
 
         $('#mainTableBody').append(itemHtml);

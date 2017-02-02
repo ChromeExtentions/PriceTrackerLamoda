@@ -9,7 +9,7 @@ onAlarmListener();
     addAlarm();
 
 //--- Слушатель запуска фоновой задачи
-   chrome.alarms.onAlarm.addListener(onAlarmListener);
+//    chrome.alarms.onAlarm.addListener(onAlarmListener);
 
 //--- Слушатель входящих сообщений (с сайта: добавить товар)
     chrome.runtime.onMessage.addListener(onMessageListener);
@@ -71,7 +71,7 @@ function fireNotifications(changes) {
 
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, { changes: changes }, function(response) {
-
+            //alert(tabs[0].title);
         });
     });
 }
@@ -103,8 +103,8 @@ function loadProduct(params) {
         sleep(params.index * 2000);
         $.get(params.product.url, function(response) {
             resolve( { code: params.product.code, price: parsePrice(response, params.product.code) } );
-        }).
-        fail(function() {
+        })
+        .fail(function() {
             resolve( { code: params.product.code, price: -1 } );
         });
     });
@@ -114,30 +114,6 @@ function parsePrice(response, productCode) {
     var page =  $( (' ' + response).slice(1) );
     var productDivSearchStr = 'div.ii-product[data-sku="' + productCode + '"]';
     return $(page).find(productDivSearchStr).find('div.ii-product__price').attr('data-current');
-}
-
-function updatePrices() {
-
-    // if( !lockUpdate() ) {
-    //     return;
-    // }
-    // $.ajax(
-    //     {
-    //         type: 'GET',
-    //         url: url
-    //     }
-    // ).done(
-    //     function(data) {
-    //         var i=0;
-    //     }
-    // ).fail(
-    //     function() {
-    //     }
-    // ).always(
-    //     function() {
-    //         unlockUpdate();
-    //     }
-    // );
 }
 
 function lockUpdate() {

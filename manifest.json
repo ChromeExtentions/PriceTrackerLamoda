@@ -25,7 +25,7 @@
   },
   "content_scripts": [
       {
-        "matches": [ "http://www.lamoda.ru/*"],
+        "matches": [ "http://*/*", "https://*/*"],
         "js": [ "lib/jquery-3.1.1.min.js", "util.js", "content/onpage.js" ]
       }
   ],
@@ -41,6 +41,7 @@
     "alarms",
     "storage",
     "tabs",
+    "activeTab",
     "notifications",
     "https://ajax.googleapis.com/"
   ]

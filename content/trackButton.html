@@ -10,7 +10,7 @@
         overflow-x: hidden;
 
         position: fixed;
-        /*z-index: 1000000000;*/
+        z-index: 2000000000;
         display: block;
 
         left: auto;
@@ -39,12 +39,28 @@
     table tr.trackProductElementTr {
         width: 280px;
     }
+    table td.trackProductElementLabelTd {
+        width: 280px;
+        height: 40px;
+        overflow: hidden;
+        white-space: nowrap;
+        padding-top: 5px;
+        padding-left: 5px;
+        font-size: 15px;
+        font-weight: bold;
+        font-family: "Microsoft Sans Serif";
+    }
     table td.trackProductElementTd {
         width: 280px;
         height: 40px;
         overflow: hidden;
         white-space: nowrap;
+        padding-bottom: 5px;
+        padding-left: 5px;
+        font-family: "Microsoft Sans Serif";
+        vertical-align: initial;
     }
+
     img.product{
         width:80px;
         height:80px;
@@ -63,7 +79,7 @@
                 <table class="trackProductElement">
                     <tbody>
                     <tr class="trackProductElementTr">
-                        <td id="trackProductLabelTd" class="trackProductElementTd">
+                        <td id="trackProductLabelTd" class="trackProductElementLabelTd">
                             Следить за ценой товара
                         </td>
                     </tr>
