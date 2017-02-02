@@ -24,7 +24,7 @@ function addProduct(request, sendResponseCallback) {
                 imgSrc: 'http:' + request.imgSrc,
                 imgBase64: request.imgBase64,
                 nextUpdate: nextUpdate.toString(),
-                lastUpdate: null,
+                lastUpdate: new Date().toString(),
                 tryMissing: null
             };
 
@@ -61,41 +61,7 @@ function addProduct(request, sendResponseCallback) {
 
 function getProductTable(renderCallback) {
     chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
-        if(isEmpty(productData)) {
-            productData = {
-                productList: {},
-                productPrices: {}
-            }
-        }
-        if(isEmpty(productData.productList)) {
-            productData.productList = {};
-        }
-        if(isEmpty(productData.productPrices)) {
-            productData.productPrices = {};
-        }
-
-        var productTable = [];
-        Object.keys(productData.productList).forEach(function(key) {
-            var value = productData.productList[key];
-            var code = value.code;
-            var name = value.name;
-            var id = value.code;
-            var imgSrc = value.imgSrc;
-            var prices = isEmpty(productData.productPrices[id]) ? [] : productData.productPrices[id];
-
-            var oldPrice = null;
-            var newPrice = null;
-            if(value.tryMissing > 0) {
-                oldPrice = prices.length > 0 ? prices[prices.length-1] : null;
-                newPrice = null;
-            }
-            else {
-                oldPrice = prices.length > 0 ? prices.length > 1 ? prices[prices.length-2] : null : null;
-                newPrice = prices.length > 0 ? prices[prices.length-1] : null;
-            }
-            productTable.push( { code: code, name: name, imgSrc: imgSrc, oldPrice: oldPrice, newPrice: newPrice } );
-        });
-        renderCallback(productTable);
+        renderCallback( loadProductTable(productData).sort(byLastUpdate) );
     });
 }
 
@@ -106,34 +72,75 @@ function removeProduct(id, renderCallback) {
             productData.productList = {};
             productData.productPrices = {};
         }
-
         delete productData.productList[id];
         delete productData.productPrices[id];
 
-        console.log(productData);
 
-        chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices }, function(result) {
-            if(typeof chrome.runtime.lastError != 'undefined') {
-                // sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
+        chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices }, function(res) {
+
+            var productTable = loadProductTable(productData)
+            if(!isEmpty(renderCallback)) {
+                renderCallback(productTable);
             }
-            else {
-                var productTable = [];
-                Object.keys(productData.productList).forEach(function(key) {
-                    var value = productData.productList[key];
-                    var code = value.code;
-                    var name = value.name;
 
-                    var id = value.code;
-                    var prices = productData.productPrices[id];
-                    productTable.push( { code: code, name: name, prices: prices } );
-                });
-
-                if(!isEmpty(renderCallback)) {
-                    renderCallback(productTable);
-                }
-            }
+            //    var productTable = [];
+            //    Object.keys(productData.productList).forEach(function(key) {
+            //        var value = productData.productList[key];
+            //        var code = value.code;
+            //        var name = value.name;
+            //
+            //        var id = value.code;
+            //        var prices = productData.productPrices[id];
+            //        productTable.push( { code: code, name: name, prices: prices } );
+            //    });
         });
     });
+}
+function loadProductTable(productData) {
+    if(isEmpty(productData)) {
+        productData = {
+            productList: {},
+            productPrices: {}
+        }
+    }
+    if(isEmpty(productData.productList)) {
+        productData.productList = {};
+    }
+    if(isEmpty(productData.productPrices)) {
+        productData.productPrices = {};
+    }
+
+    var productTable = [];
+    Object.keys(productData.productList).forEach(function(key) {
+        var value = productData.productList[key];
+        var code = value.code;
+        var prices = isEmpty(productData.productPrices[code]) ? [] : productData.productPrices[code];
+
+        var oldPrice = null;
+        var newPrice = null;
+        if(value.tryMissing > 0) {
+            oldPrice = prices.length > 0 ? prices[prices.length-1] : null;
+            newPrice = null;
+        }
+        else {
+            oldPrice = prices.length > 0 ? prices.length > 1 ? prices[prices.length-2] : null : null;
+            newPrice = prices.length > 0 ? prices[prices.length-1] : null;
+        }
+
+        productTable.push(
+            {
+                code: value.code,
+                name: value.name,
+                imgSrc: value.imgSrc,
+                url: value.url,
+                oldPrice: oldPrice,
+                newPrice: newPrice,
+                lastUpdate: value.lastUpdate
+            }
+        );
+
+    });
+    return productTable;
 }
 
 function getProductUpdateList() {
@@ -353,6 +360,10 @@ function newUpdateTime(updateInterval) { // Интервал в часах
 function newRandomUpdateTime() {
     var currentInMillis = new Date().getTime();
     return new Date(currentInMillis + 3600000*Math.random());
+}
+
+function byLastUpdate(left, right) {
+    return Date.parse(right.lastUpdate) - Date.parse(left.lastUpdate);
 }
 
 //============= Определение состояний товара ==================
