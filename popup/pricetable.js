@@ -24,37 +24,39 @@ var renderProductTable = function(productTable, itemTemplate) {
         var itemHtml =  $( (' ' + itemTemplate).slice(1) );
         var tdPriceOld = itemHtml.find('.productPriceOld')[0];
         var tdPriceNew = itemHtml.find('.productPriceNew')[0];
-        var tdName = itemHtml.find('.productName')[0];
+        var labelName = itemHtml.find('label.productName')[0];
+        var aLink = itemHtml.find('.productLink')[0];
+        var productImg = itemHtml.find('img.product')[0];
         var removeButton = itemHtml.find('button.removeProduct')[0];
         var rowId = itemHtml.find('.data-id')[0];
 
         $(rowId).val(productTable[i].code);
+        $(labelName).text(productTable[i].name);
+        $(aLink).attr('href', productTable[i].url);
+        $(productImg).attr('src', productTable[i].imgSrc);
 
-        var prices =  isEmpty(productTable[i].prices) ? [] : productTable[i].prices;
-        var oldPrice = 0.0;
-        var newPrice = 0.0;
-        if(prices.length > 1) {
-            oldPrice = prices[prices.length-2];
-        }
-        newPrice = prices[prices.length-1];
-
-
-        $(tdName).text(productTable[i].name);
+        var oldPrice = productTable[i].oldPrice;
+        var newPrice = productTable[i].newPrice;
 
         if(oldPrice == null) {
-            newPrice = "Товар отсутствует";
+            if(newPrice != null) {
+                $(tdPriceOld).text("Новая цена " + newPrice + " руб.");
+            }
+            else {
+                $(tdPriceOld).text("Товар отсутствует в продаже");
+            }
         }
-        $(tdPriceOld).text("Было " + oldPrice + " руб.");
-
-        if(newPrice == null) {
-            newPrice = "Товар отсутствует";
+        else if(newPrice == null) {
+            $(tdPriceOld).text("Товар временно отсутствует. Последняя цена - " + oldPrice + " руб.");
         }
-        $(tdPriceNew).text("Стало " + newPrice + " руб.");
+        else {
+            $(tdPriceOld).text("Было " + oldPrice + " руб.");
+            $(tdPriceNew).text("Стало " + newPrice + " руб.");
+        }
 
         $(removeButton).attr("data-id", productTable[i].code);
 
         $('#mainTableBody').append(itemHtml);
-
 
         $('button.removeProduct').click(function(e) {
             e.preventDefault();

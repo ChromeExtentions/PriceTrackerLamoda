@@ -21,6 +21,7 @@ function addProduct(request, sendResponseCallback) {
                 name: request.name,
                 code: request.code,
                 url: request.url,
+                imgSrc: 'http:' + request.imgSrc,
                 imgBase64: request.imgBase64,
                 nextUpdate: nextUpdate.toString(),
                 lastUpdate: null,
@@ -79,8 +80,20 @@ function getProductTable(renderCallback) {
             var code = value.code;
             var name = value.name;
             var id = value.code;
+            var imgSrc = value.imgSrc;
             var prices = isEmpty(productData.productPrices[id]) ? [] : productData.productPrices[id];
-            productTable.push( { code: code, name: name, prices: prices } );
+
+            var oldPrice = null;
+            var newPrice = null;
+            if(value.tryMissing > 0) {
+                oldPrice = prices.length > 0 ? prices[prices.length-1] : null;
+                newPrice = null;
+            }
+            else {
+                oldPrice = prices.length > 0 ? prices.length > 1 ? prices[prices.length-2] : null : null;
+                newPrice = prices.length > 0 ? prices[prices.length-1] : null;
+            }
+            productTable.push( { code: code, name: name, imgSrc: imgSrc, oldPrice: oldPrice, newPrice: newPrice } );
         });
         renderCallback(productTable);
     });
@@ -199,12 +212,14 @@ function updatePricesFromSite(updateList) {
                 productPrices = {};
             }
 
+            // changes - набор данныех для отображения уведомлений
             var changes = [];
             for(var i=0; i<updateList.length; i++) {
 
                 var code = updateList[i].code;
                 var newPrice = new Number(updateList[i].price);
-                var product = productList[code];
+                var product = productList[code]
+                var change = null;
 
                 if(newPrice == null) {
 
@@ -221,7 +236,7 @@ function updatePricesFromSite(updateList) {
 
                         // Если цена отсутствует меньше missingAfterDays, то ничего не делаем, ждем пока пройдет missingCheckPeriod
                         if( (currentDateInMillis - lastUpdateInMillis) < (86400000 * settings.missingAfterDays) ) {  // 86 400 000 миллисекунд в сутках
-                            productList[code].nextUpdate =  newUpdateTime(settings.updateInterval).toString();;
+                            productList[code].nextUpdate =  newUpdateTime(settings.updateInterval).toString();
                             product.tryMissing = 0;
                         }
                         // Цена отсутствует более missingAfterDays, теперь считаем товар отсутствующим
@@ -231,10 +246,14 @@ function updatePricesFromSite(updateList) {
                                 product.tryMissing = 0;
                             }
                             else {
+                                change = {
+                                    code: product.code,
+                                    oldPrice: null,
+                                    newPrice: null
+                                };
                                 removeProduct(code);
                             }
                         }
-
                     }
                     // Товар уже считается отсутствующим
                     else if(Number.isInteger(product.tryMissing)) {
@@ -242,20 +261,28 @@ function updatePricesFromSite(updateList) {
                         product.tryMissing++;
 
                         if(product.tryMissing >= settings.missingCheckTimes) {
+                            change = {
+                                code: product.code,
+                                oldPrice: null,
+                                newPrice: null
+                            };
                             removeProduct(code);
                         }
                     }
                 }
                 else {
-                    var change = updateProductPrices(productPrices, code, newPrice, settings.maxPriceToShow);
+                    change = updateProductPrices(productPrices, code, newPrice, settings.maxPriceToShow);
                     if(becomeAvailable(productPrices[code])) {
                         product.tryMissing = null;
                     }
-                    productData.productList[code].nextUpdate =  newUpdateTime(settings.updateInterval).toString();
-                    if(!isEmpty(change)) {
-                        changes.push(change);
-                    }
+                    product.nextUpdate =  newUpdateTime(settings.updateInterval).toString();
                 }
+
+                if(!isEmpty(change)) {
+                    change.imgSrc = product.imgSrc;
+                    changes.push(change);
+                }
+                change = null;
             }
 
             productData.productList = productList;
@@ -272,18 +299,18 @@ function updatePricesFromSite(updateList) {
 function updateProductPrices(productPrices, id, newPrice, maxPrices) {
     var change = {
         code: null,
-        oldPrice: 0,
-        newPrice: 0
+        oldPrice: null,
+        newPrice: null
     };
 
     var priceArray = productPrices[id];
     if(typeof priceArray == 'undefined' || priceArray.length == 0) {
-        // Пока не было ни одной цены на товар (гипотетическая ситуация, т.к. как правило добавляем в список сразу с ценой)
+        // Пока не было ни одной цены на товар
         priceArray = [];
         priceArray.push(newPrice);
         change = {
             code: id,
-            oldPrice: priceArray.length > 1 ? priceArray[1] : 0,
+            oldPrice: priceArray.length > 1 ? priceArray[priceArray.length-2] : null,
             newPrice: priceArray[priceArray.length-1]
         };
         productPrices[id] = priceArray;

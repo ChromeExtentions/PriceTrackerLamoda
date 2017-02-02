@@ -123,6 +123,8 @@ function addNotification(template, change) {
     var notificationTemplate = $(template);
 
     var code = change.code;
+    var imgSrc = change.src;
+    //notificationTemplate.find('img.product').val(imgSrc);
     notificationTemplate.find('input.data-id').val(code);
     notificationTemplate.find('img.closeImg').attr('src', chrome.extension.getURL("img/close.png")).attr('data-id', code);
     //notificationTemplate.hide();
