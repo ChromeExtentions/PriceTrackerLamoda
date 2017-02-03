@@ -3,29 +3,15 @@ $( function() {
 
     if(document.domain == 'www.lamoda.ru') {
         //==================== ТОЛЬКО ЕСЛИ LAMODA! ===================================================
+
         // has product div container
-
-        //var linkToBootstrap = '<link rel="stylesheet" href="' + chrome.extension.getURL("lib/bootstrap.min.css") + '">';
-        //$('head').append(linkToBootstrap);
-
         if( $('div.ii-product').length > 0 ) {
             addTrackButton();
         }
+
         //==================== ТОЛЬКО ЕСЛИ LAMODA! ===================================================
     }
-    chrome.runtime.onMessage.addListener(notificationListener);
 });
-
-function notificationListener(request, sender, sendResponse) {
-    var changes = request.changes;
-    var notificationPath = chrome.extension.getURL("content/notification.html");
-
-    $.get(notificationPath, function(result) {
-        for(var i=0; i<changes.length; i++) {
-            addNotification(result, changes[i]);
-        }
-    });
-}
 
 function addTrackButton() {
     var TRACK_BUTTON_HEIGHT = 80;
@@ -68,7 +54,7 @@ function addTrackButton() {
 }
 
 function setLogoImagePath() {
-    var imgPath = chrome.extension.getURL("img/logo.jpg");
+    var imgPath = chrome.extension.getURL("img/logo.png");
     $('#trackProductContainerDiv').find("#logoImage").attr("src", imgPath);
 }
 
@@ -92,73 +78,7 @@ function bindClickEventListener() {
     });
 }
 
-function addNotification(template, change) {
 
-    var visibleNotifications = $('.notificationContainerDiv');
-
-    //var bottomPanelHeight = $('div.footer__sticky').height();
-    var spacePx = 3;
-    var nextBottomCoord = spacePx;
-
-    var i=0;
-    var maxBottom = 0;
-    while(i<visibleNotifications.length) {
-        var currentBottom = Number( $(visibleNotifications[i]).css('bottom').replace(/[a-zA-Z]/g, "") );
-        maxBottom = currentBottom > maxBottom ? currentBottom : maxBottom;
-        i++;
-    }
-
-    switch(visibleNotifications.length) {
-        case 0:
-            break;
-        case 1:
-        case 2:
-            nextBottomCoord = maxBottom + $(visibleNotifications[0]).height() + spacePx;
-            break;
-        default:
-            nextBottomCoord = maxBottom;
-    }
-    nextBottomCoord += 'px';
-
-    var notificationTemplate = $(template);
-
-    var code = change.code;
-    var imgSrc = change.src;
-    //notificationTemplate.find('img.product').val(imgSrc);
-    notificationTemplate.find('input.data-id').val(code);
-    notificationTemplate.find('img.closeImg').attr('src', chrome.extension.getURL("img/close.png")).attr('data-id', code);
-    //notificationTemplate.hide();
-
-    $('body').append(notificationTemplate);
-
-    $('body').find('.closeNotification').click(function(e) {
-        e.preventDefault();
-        var code = e.target.attributes['data-id'];
-        var notificationToRemove = $('.notificationContainerDiv').has('input.data-id[value="' + code.value + '"]');
-
-        if(isEmpty(notificationToRemove)) {
-            return;
-        }
-
-        var removedNotificationBottom = Number( $(notificationToRemove).css('bottom').replace(/[a-zA-Z]/g, "") );
-        $(notificationToRemove).remove();
-
-        var i=0;
-        var visibleNotificationsInner = $('.notificationContainerDiv');
-        while(i<visibleNotificationsInner.length) {
-            var currentBottom = Number( $(visibleNotificationsInner[i]).css('bottom').replace(/[a-zA-Z]/g, "") );
-            if(currentBottom > removedNotificationBottom) {
-                var newBottomCoord = currentBottom - $(visibleNotificationsInner[0]).height() - spacePx;
-                newBottomCoord += 'px';
-                $(visibleNotificationsInner[i]).css("bottom", newBottomCoord);
-            }
-            i++;
-        }
-    });
-
-    var searchDiv = 'input.data-id[value="' + code + '"]';
-    $('.notificationContainerDiv').has(searchDiv).css("bottom", nextBottomCoord).fadeIn();
-}
 
 function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
 {

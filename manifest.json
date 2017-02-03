@@ -29,14 +29,16 @@
         "js": [ "lib/jquery-3.1.1.min.js", "util.js", "content/onpage.js" ]
       }
   ],
+  "options_page": "options/options.html",
   "web_accessible_resources": [
       "content/trackButton.html",
       "content/notification.html",
       "lib/bootstrap.min.css",
       "img/logo.jpg",
+      "img/logo.png",
       "img/close.png"
   ],
-  "options_page": "options/options.html",
+  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
   "permissions": [
     "alarms",
     "storage",

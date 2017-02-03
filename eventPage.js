@@ -26,7 +26,8 @@ function applySettings() {
         missingCheckTimes: 4,
         maxPriceToShow: 10,
         maxProductCount: 60,
-        maxProductCountUpdatePerTime: 5
+        maxProductCountUpdatePerTime: 5,
+        maxNotificationCount: 10
     };
     chrome.storage.sync.set( window.settings , function(result) {
     });
@@ -41,6 +42,7 @@ function addAlarm() {
     }
 }
 
+//=============================== ВОТ ТУТ ВСЕ ОТСЛЕЖИВАНИЕ И ПРОИСХОДИТ ===================================
 function onAlarmListener() {
     fireNotifications({});
 
@@ -51,6 +53,7 @@ function onAlarmListener() {
     //    .then(fireNotifications);
 }
 
+// Сообщение со страницы о добавлении товара
 function onMessageListener(request, sender, sendResponse) {
     try {
         addProduct(request, sendResponse);
@@ -62,6 +65,7 @@ function onMessageListener(request, sender, sendResponse) {
     return true;
 }
 
+
 function fireNotifications(changes) {
     var changes = [];
     changes.push( { code: 'AAA1', oldPrice: 100, newPrice: 200 } );
@@ -69,11 +73,38 @@ function fireNotifications(changes) {
     changes.push( { code: 'AAA3', oldPrice: 300, newPrice: 100 } );
     changes.push( { code: 'AAA4', oldPrice: 400, newPrice: 500 } );
 
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, { changes: changes }, function(response) {
-            //alert(tabs[0].title);
+    for(var i=0; i<changes.length && i<10; i++) {
+        fireSingleNotification(changes[i]);
+    }
+}
+
+function fireSingleNotification(change) {
+    chrome.notifications.create(
+        'priceChangedNotification' + change.id,
+        {
+            type: 'basic',
+            iconUrl: change.imgSrc,
+            title: change.title,
+            message: change.message,
+            isClickable: true,
+            requireInteraction: true
+        }, function callback(createdId) {
+
+            // Событие оповещения для Google analytics
+            //gaNotificationCreateCallback();
+
+            var handler = function(id) {
+                if(id == createdId) {
+                    chrome.tabs.create({ url: change.url });
+                    chrome.notifications.clear(id);
+                    chrome.notifications.onClicked.removeListener(handler);
+
+                    // Событие перехода по оповещению для Google analytics
+                    //gaNotificationOpenUrlCallback();
+                }
+            };
+            chrome.notifications.onClicked.addListener(handler);
         });
-    });
 }
 
 function downloadProductUpdates(productUpdateList){
@@ -116,6 +147,7 @@ function parsePrice(response, productCode) {
     return $(page).find(productDivSearchStr).find('div.ii-product__price').attr('data-current');
 }
 
+// Хз что
 function lockUpdate() {
     var updateObj = chrome.storage.local.get('priceChecker_updateObject', function() {});
     if(typeof updateObj == 'undefined' || updateObj == null) {
@@ -142,34 +174,3 @@ function unlockUpdate() {
     };
     chrome.storage.local.set( {'priceChecker_updateObject':  updateObj });
 }
-
-// function getProducts() {
-//     var products = chrome.storage.local.get('priceChecker_products', function() {});
-//     if(typeof products == 'undefined' || products == null) {
-//         products = [
-//             {
-//                 "name": "",
-//                 "price": 0.0,
-//                 "url": ""
-//             }
-//         ]
-//     }
-// }
-//
-//function bufferToBase64(buf) {
-//    var binstr = Array.prototype.map.call(buf, function (ch) {
-//        return String.fromCharCode(ch);
-//    }).join('');
-//    return btoa(binstr);
-//}
-//
-//function _base64ToArrayBuffer(base64) {
-//    var binary_string =  window.atob(base64);
-//    var len = binary_string.length;
-//    var bytes = new Uint8Array( len );
-//    for (var i = 0; i < len; i++)        {
-//        bytes[i] = binary_string.charCodeAt(i);
-//    }
-//    return bytes.buffer;
-//}
-//

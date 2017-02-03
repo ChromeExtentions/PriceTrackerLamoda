@@ -75,24 +75,11 @@ function removeProduct(id, renderCallback) {
         delete productData.productList[id];
         delete productData.productPrices[id];
 
-
         chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices }, function(res) {
-
             var productTable = loadProductTable(productData)
             if(!isEmpty(renderCallback)) {
                 renderCallback(productTable);
             }
-
-            //    var productTable = [];
-            //    Object.keys(productData.productList).forEach(function(key) {
-            //        var value = productData.productList[key];
-            //        var code = value.code;
-            //        var name = value.name;
-            //
-            //        var id = value.code;
-            //        var prices = productData.productPrices[id];
-            //        productTable.push( { code: code, name: name, prices: prices } );
-            //    });
         });
     });
 }
@@ -226,7 +213,7 @@ function updatePricesFromSite(updateList) {
                 var code = updateList[i].code;
                 var newPrice = new Number(updateList[i].price);
                 var product = productList[code]
-                var change = null;
+                var changeNotification = null;
 
                 if(newPrice == null) {
 
@@ -253,7 +240,7 @@ function updatePricesFromSite(updateList) {
                                 product.tryMissing = 0;
                             }
                             else {
-                                change = {
+                                changeNotification = {
                                     code: product.code,
                                     oldPrice: null,
                                     newPrice: null
@@ -268,7 +255,7 @@ function updatePricesFromSite(updateList) {
                         product.tryMissing++;
 
                         if(product.tryMissing >= settings.missingCheckTimes) {
-                            change = {
+                            changeNotification = {
                                 code: product.code,
                                 oldPrice: null,
                                 newPrice: null
@@ -278,26 +265,35 @@ function updatePricesFromSite(updateList) {
                     }
                 }
                 else {
-                    change = updateProductPrices(productPrices, code, newPrice, settings.maxPriceToShow);
+                    changeNotification = updateProductPrices(productPrices, code, newPrice, settings.maxPriceToShow);
                     if(becomeAvailable(productPrices[code])) {
                         product.tryMissing = null;
                     }
                     product.nextUpdate =  newUpdateTime(settings.updateInterval).toString();
                 }
 
-                if(!isEmpty(change)) {
-                    change.imgSrc = product.imgSrc;
-                    changes.push(change);
+                if(!isEmpty(changeNotification)) {
+
+                    // Формируем уведомления только если цена изменилась
+                    // (случаи с отсутствием/появлением/снятием с наблюдения товара пока НЕ ОБРАБАТЫВАЕМ)
+                    if( changeNotification.oldPrice != null && changeNotification.newPrice != null) {
+                        changeNotification.imgSrc = product.imgSrc;
+                        changeNotification.title = changeNotification.newPrice > changeNotification.oldPrice ? ' Повышение цены на laModa' : 'Скидка на laModa' ;
+                        changeNotification.message = product.name + ' теперь стоит ' + changeNotification.newPrice + ' рублей';
+                        changeNotification.url = product.url;
+                        changes.push(changeNotification);
+                    }
                 }
-                change = null;
-            }
+                // Для следующей итерации
+                changeNotification = null;
+
+            } // for(var i=0; i<updateList.length; i++)
 
             productData.productList = productList;
             productData.productPrices = productPrices;
-
             chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices },
                 function() {
-                    resolve(changes);
+                    resolve(changes); // RESOLVE //
                 });
         });
     });
@@ -366,7 +362,6 @@ function byLastUpdate(left, right) {
     return Date.parse(right.lastUpdate) - Date.parse(left.lastUpdate);
 }
 
-//============= Определение состояний товара ==================
 function priceChanged(priceOld, priceNew) {
     var delta = priceOld - priceNew;
 
@@ -374,12 +369,20 @@ function priceChanged(priceOld, priceNew) {
         return delta >= window.settings.changeThresholdUnitRub;
     }
     else if(window.settings.changeThresholdUnit == 'percent') {
-        return delta/priceArray[priceArray.length-2] > window.settings.changeThresholdUnitPercent/100;
+        return delta/priceOld > window.settings.changeThresholdUnitPercent/100;
     }
 
     throw "Ошибка при расчете изменения цены";
 }
 
+function becomeAvailable(priceArray) {
+    if(isEmpty(priceArray) || priceArray.length < 2) {
+        return false;
+    }
+    return priceArray[priceArray.length-2] == null && priceArray[priceArray.length-1] != null && priceArray[priceArray.length-1] > 0;
+}
+
+//============= Может пригодится ==================
 function priceUp(priceArray) {
     if(isEmpty(priceArray) || priceArray.length < 2) {
         return false;
@@ -410,12 +413,6 @@ function becomeMissing(priceArray) {
     return priceArray[priceArray.length-1] == null && priceArray[priceArray.length-2] != null && priceArray[priceArray.length-2] > 0;
 }
 
-function becomeAvailable(priceArray) {
-    if(isEmpty(priceArray) || priceArray.length < 2) {
-        return false;
-    }
-    return priceArray[priceArray.length-2] == null && priceArray[priceArray.length-1] != null && priceArray[priceArray.length-1] > 0;
-}
 
 function isGone(priceArray) {
     if(isEmpty(priceArray) || priceArray.length < window.settings.missingCheckTimes) {
@@ -429,65 +426,3 @@ function isGone(priceArray) {
     }
     return true;
 }
-//=====================================================================================================
-
-//======================= СТАРАЯ ВЕРСИЯ =====================================
-//function updateProductPrices(productPrices, id, newPrice, maxPrices) {
-//    var change = {
-//        code: null,
-//        oldPrice: 0,
-//        newPrice: 0
-//    };
-//
-//    var priceArray = productPrices[id];
-//    if(typeof priceArray == 'undefined' || priceArray.length == 0) {
-//        // Пока не было ни одной цены на товар (гипотетическая ситуация, т.к. как правило добавляем в список сразу с ценой)
-//        priceArray = [];
-//        priceArray.push(newPrice);
-//        change = {
-//            code: id,
-//            oldPrice: priceArray.length > 1 ? priceArray[1] : 0,
-//            newPrice: priceArray[priceArray.length-1]
-//        };
-//        productPrices[id] = priceArray;
-//        return change;
-//    }
-//    if(newPrice == null ) {
-//        if(priceArray[priceArray.length-1] == null) {
-//            //Товара как не было так и нет
-//            return null;
-//        }
-//        else {
-//            //Товар был, но снят с продажи
-//            priceArray.push(null);
-//        }
-//    }
-//    else {
-//        if(priceArray[priceArray.length-1] == null) {
-//            // Товар поступил в продажу после отсутствия
-//            priceArray[priceArray.length-1] = newPrice;
-//        }
-//        else {
-//            if(priceArray.length >= maxPrices) {
-//                // Массив цен заполнен, удаляем самую старую цену
-//                priceArray = priceArray.slice(1);
-//            }
-//            if(priceArray[priceArray.length-1] != newPrice) {
-//                // Цена на товар изменилась
-//                priceArray.push(newPrice);
-//                productPrices[id] = priceArray;
-//            }
-//            else {
-//                // Цена на товар не изменилась
-//                return null;
-//            }
-//        }
-//    }
-//    change = {
-//        code: id,
-//        oldPrice: priceArray.length > 1 ? priceArray[1] : 0,
-//        newPrice: priceArray[priceArray.length-1]
-//    };
-//    productPrices[id] = priceArray;
-//    return change;
-//}

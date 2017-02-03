@@ -5,6 +5,8 @@ $( function() {
         save_options();
     });
 
+    // Если меняем единицы в которах хранится пороговое значение срабатывания изменения цены,
+    // то надо пересоздать слайдеры, чтобы правильно отображалась шкала и значения
     $('input[name="changeThresholdUnit"]').click(function(e) {
 
         var currVal = $('#changePriceThreshold').slider('value');
@@ -65,7 +67,8 @@ function save_options() {
         missingCheckTimes: $('#missingCheckTimes').val(),
         maxPriceToShow: $('#maxPriceToShow').val(),
         maxProductCount: 60,
-        maxProductCountUpdatePerTime: 5
+        maxProductCountUpdatePerTime: 5,
+        maxNotificationCount: 10
     };
     chrome.storage.sync.set( settings , function() {});
 }
@@ -85,7 +88,8 @@ function restore_options() {
             missingCheckTimes: 4,
             maxPriceToShow: 10,
             maxProductCount: 60,
-            maxProductCountUpdatePerTime: 5
+            maxProductCountUpdatePerTime: 5,
+            maxNotificationCount: 10
         },
         function(items) {
             var priceThresholdUnit = items.changeThresholdUnit;
@@ -109,6 +113,8 @@ function restore_options() {
             var handle = $( "#custom-handle" );
             var maxValue = $('#priceThreshUnitHidden').val() == 'rouble' ? 999 : $('#priceThreshUnitHidden').val() == 'percent' ? 100 : 1;
 
+            // При загрузке значений из хранилища, корректное пересоздание слайдеров
+            // чтобы правильно отображалась шкала и значения
             $( "#changePriceThreshold" ).slider(
                 {
                     create: function() {
