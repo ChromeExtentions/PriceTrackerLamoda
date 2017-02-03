@@ -20,12 +20,12 @@
 
   },
   "background": {
-      "scripts": [ "lib/jquery-3.1.1.min.js", "util.js", "storageUtil.js", "eventPage.js" ],
+      "scripts": [ "lib/jquery-3.1.1.min.js", "settings.js", "util.js", "storageUtil.js", "eventPage.js" ],
       "persistent": false
   },
   "content_scripts": [
       {
-        "matches": [ "http://*/*", "https://*/*"],
+        "matches": [ "http://*/*", "https://*/*", "file:///*"],
         "js": [ "lib/jquery-3.1.1.min.js", "util.js", "content/onpage.js" ]
       }
   ],
@@ -36,18 +36,17 @@
       "lib/bootstrap.min.css",
       "img/logo.jpg",
       "img/logo.png",
-      "img/close.png"
+      "img/close.png",
+      "test/*"
   ],
 
-    "content_security_policy": "script-src 'self' https://www.google-analytics.com/analytics.js; object-src 'self'",
-      //"content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
-  //"content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
-  "permissions": [
-    "alarms",
-    "storage",
-    "tabs",
-    "activeTab",
-    "notifications",
-    "https://ajax.googleapis.com/"
-  ]
+      "content_security_policy": "script-src 'self' https://www.google-analytics.com/analytics.js; object-src 'self'",
+      "permissions": [
+          "alarms",
+          "storage",
+          "tabs",
+          "activeTab",
+          "notifications",
+          "https://ajax.googleapis.com/"
+      ]
 }

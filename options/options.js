@@ -1,6 +1,14 @@
 ;
 $( function() {
 
+    if(window.settings.testApp == true) {
+        var allLinks = $('div.testDiv a');
+        for( var i=0; i< allLinks.length; i++) {
+            $(allLinks[i]).attr('href', window.settings.pathToTestProducts + $(allLinks[i]).attr('href'));
+        }
+        $('div.testDiv').show();
+     }
+
     $('#save').click(function(e) {
         save_options();
     });
@@ -57,7 +65,7 @@ function save_options() {
                                                 : ($('#trackIfMissingFalse').prop('checked') != true);
 
     var settings = {
-        updateInterval: $('#updateInterval').val(),
+        updateInterval: Number( $('#updateInterval').val() ),
         changeThresholdUnitRub: priceThresholdUnit == 'rouble' ? $( "#changePriceThreshold" ).slider("value") : 100,
         changeThresholdUnitPercent: priceThresholdUnit == 'percent' ? $( "#changePriceThreshold" ).slider("value") : 4,
         changeThresholdUnit: priceThresholdUnit,
@@ -78,7 +86,7 @@ function save_options() {
 function restore_options() {
     chrome.storage.sync.get(
         {
-            updateInterval: '8h',
+            updateInterval: '8',
             changeThresholdUnitRub: 100,
             changeThresholdUnitPercent: 4,
             changeThresholdUnit: 'rouble',

@@ -16,7 +16,15 @@ function addProduct(request, sendResponseCallback) {
             return;
         }
         else {
-            var nextUpdate = newUpdateTime(settings.updateInterval);
+
+//===== PRODUCTION =====
+//             var nextUpdate = newUpdateTime(settings.updateInterval);
+//===== PRODUCTION =====
+
+//===== TEST =====
+            var nextUpdate = newUpdateTimeTest(settings.updateInterval);
+//===== TEST =====
+
             var product = {
                 name: request.name,
                 code: request.code,
@@ -361,7 +369,12 @@ function isTimeToUpdate(dateStringIn) {
 
 function newUpdateTime(updateInterval) { // Интервал в часах
     var currentInMillis = new Date().getTime();
-    return new Date(currentInMillis + (new Number(updateInterval))*3600000 + Math.round(3600000*Math.random()));
+    return new Date(currentInMillis + (updateInterval)*3600000 + Math.round(3600000*Math.random()));
+}
+
+function newUpdateTimeTest(updateInterval) { // Интервал в секундах
+    var currentInMillis = new Date().getTime();
+    return new Date(currentInMillis + (updateInterval)*1000 + Math.round(30000*Math.random()));
 }
 
 function newRandomUpdateTime() {

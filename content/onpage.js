@@ -1,102 +1,74 @@
 ;
 $( function() {
 
-    if(document.domain == 'www.lamoda.ru') {
-        //==================== ТОЛЬКО ЕСЛИ LAMODA! ===================================================
+    //===== PRODUCTION =====
+    // if(document.domain == 'www.lamoda.ru') {
+    //     // has product div container
+    //     if( $('div.ii-product').length > 0 ) {
+    //
+    //         // Сколько раз пытаться найти кнопку консультанта, чтобы прицепить к ней нашу кнопку
+    //         window.maxConsultantAttachAttempts = 5;
+    //
+    //         addTrackButton();
+    //     }
+    // }
+    //===== PRODUCTION =====
 
-        // has product div container
-        if( $('div.ii-product').length > 0 ) {
-
-            // Сколько раз пытаться найти кнопку консультанта, чтобы прицепить к ней нашу кнопку
-            window.maxConsultantAttachAttempts = 5;
-
-            addTrackButton();
-        }
-
-        //==================== ТОЛЬКО ЕСЛИ LAMODA! ===================================================
-    }
+    //===== TEST =====
+    window.maxConsultantAttachAttempts = 5;
+    addTrackButton();
+    //===== TEST =====
 });
 
 function addTrackButton() {
     var TRACK_BUTTON_HEIGHT = 80;
-
     var lamodaConsultantContainer = $('#cleversite_clever_container');
+    var buttonPath = chrome.extension.getURL("content/trackButton.html");
+    $.get(buttonPath, function(data){
 
-    if( (typeof lamodaConsultantContainer != 'undefined' &&  $(lamodaConsultantContainer).find('div').length > 0)) {
-        var lamodaConsultantPosition = lamodaConsultantContainer.position();
-        var topButtonCoord = lamodaConsultantPosition.top - TRACK_BUTTON_HEIGHT;
+        var templateHtml =  $( (' ' + data).slice(1) );
+        setLogoImagePath(templateHtml);
 
-        // Мини-хак чтоб не глючила высота
-        console.log(lamodaConsultantPosition.top);
 
-        var buttonPath = chrome.extension.getURL("content/trackButton.html");
-        $.get(buttonPath, function(data){
+        if( (typeof lamodaConsultantContainer != 'undefined' &&  $(lamodaConsultantContainer).find('div').length > 0)) {
+            var lamodaConsultantPosition = lamodaConsultantContainer.position();
+            var topButtonCoord = lamodaConsultantPosition.top - TRACK_BUTTON_HEIGHT;
 
-            $('body').append(data);
+            // Мини-хак чтоб не глючила высота
+            console.log(lamodaConsultantPosition.top);
 
-            setLogoImagePath();
+            $(templateHtml).css("top", topButtonCoord)
+            $('body').append(templateHtml);
             bindClickEventListener();
-
-            $('#trackProductContainerDiv').css("top", topButtonCoord);
-
-        });
-    }
-    else if(window.maxConsultantAttachAttempts == 0) {
-
+        }
+        else if(window.maxConsultantAttachAttempts == 0) {
         // Если отсутствует кнопка консультант
-        var buttonPath = chrome.extension.getURL("content/trackButton.html");
-        $.get(buttonPath, function (data) {
-
-            $('body').append(data);
-
-            setLogoImagePath();
+            $(templateHtml).css("top", 160);
+            $('body').append(templateHtml);
             bindClickEventListener();
+        }
+        else {
+            // Раз в секунду пытаемся прицепить кнопку к консультанту
+            window.maxConsultantAttachAttempts--;
+            setTimeout( addTrackButton, 100);
+        }
+    });
 
-            $('#trackProductContainerDiv').css("top", 160);
-        });
-    }
-    else {
-        // Раз в секунду пытаемся прицепить кнопку к консультанту
-        window.maxConsultantAttachAttempts--;
-        setTimeout( addTrackButton, 1000);
-    }
 }
 
-function setLogoImagePath() {
+function setLogoImagePath(templateHtml) {
     var imgPath = chrome.extension.getURL("img/logo.png");
-    $('#trackProductContainerDiv').find("#logoImage").attr("src", imgPath);
+    $(templateHtml).find("#logoImage").attr("src", imgPath);
 }
 
 function bindClickEventListener() {
     $('#trackButton').click(function(e) {
-        var productDiv = $('div.ii-product');
-        var titleElement = $(productDiv).find('.ii-product__title');
-        var priceElement = $(productDiv).find('.ii-product__price');
-        var imgSrc = $('img.showcase__item-image').attr('src');
-        var urlDomain = extractUrlProtoDomainPath();
-        var forSave =
-        {
-            name: $(titleElement).text(),
-            code: $(productDiv).attr('data-sku'),
-            url:  urlDomain + $(productDiv).attr('data-url'),
-            imgBase64: null,
-            price: Number( $(priceElement).attr('data-current') )
-        };
-
-        resizeImgAndStoreProduct( forSave, imgSrc, 80, 80);
+        resizeImgAndStoreProduct( getProductData() , 80, 80);
     });
 }
 
-
-
-function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
-{
-    //$('body').append('<canvas id="resizedCanvas" style="display: none;"></canvas>');
-    //$('body').append('<div id="tmpContainer" style="display: none;"></div>');
-
-    forSave.imgSrc = imgSrc;
+function resizeImgAndStoreProduct(forSave, wantedWidth, wantedHeight) {
     sendProductInfo(forSave);
-
 }
 
 function sendProductInfo(forSave) {
@@ -105,6 +77,40 @@ function sendProductInfo(forSave) {
         $('#trackProductLabelTd').text(response.result);
     });
 }
+
+//===== PRODUCTION =====
+// function getProductData() {
+//     var productDiv = $('div.ii-product');
+//     var titleElement = $(productDiv).find('.ii-product__title');
+//     var priceElement = $(productDiv).find('.ii-product__price');
+//     var imgSrc = $('img.showcase__item-image').attr('src');
+//     var urlDomain = extractUrlProtoDomainPath();
+//     return {
+//         name: $(titleElement).text(),
+//         code: $(productDiv).attr('data-sku'),
+//         url: urlDomain + $(productDiv).attr('data-url'),
+//         imgSrc: imgSrc,
+//         imgBase64: null,
+//         price: Number($(priceElement).attr('data-current'))
+//     };
+// }
+//===== PRODUCTION =====
+
+//===== TEST =====
+function getProductData() {
+    var titleElement = $('#productName');
+    var priceElement = $('#productPrice');
+    var imgSrc = $('#productImg').find('img').attr('src');
+    return {
+        name: $(titleElement).text(),
+        code: $('#productId').attr('data-sku'),
+        url: chrome.extension.getURL( document.URL.substr(document.URL.lastIndexOf('test/product')) ),
+        imgSrc: imgSrc.substr(5),
+        imgBase64: null,
+        price: Number($(priceElement).attr('data-current'))
+    };
+}
+//===== TEST =====
 
 function extractUrlProtoDomainPath() {
     var url = document.URL;

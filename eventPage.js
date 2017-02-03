@@ -13,24 +13,6 @@
 //--- Слушатель входящих сообщений (с сайта: добавить товар)
     chrome.runtime.onMessage.addListener(onMessageListener);
 
-function applySettings() {
-    window.settings = {
-        updateInterval: '8',
-        changeThresholdUnitRub: 100,
-        changeThresholdUnitPercent: 4,
-        changeThresholdUnit: 'rouble',
-        missingAfterDays: 7,
-        trackIfMissing: true,
-        missingCheckPeriod: 7,
-        missingCheckTimes: 4,
-        maxPriceToShow: 10,
-        maxProductCount: 60,
-        maxProductCountUpdatePerTime: 5,
-        maxNotificationCount: 10
-    };
-    chrome.storage.sync.set( window.settings , function(result) {
-    });
-
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -43,6 +25,10 @@ function applySettings() {
     ga('myTracker.set', 'checkProtocolTask', function(){}); // Removes failing protocol check. @see: http://stackoverflow.com/a/22152353/1958200
     ga('myTracker.require', 'displayfeatures');
     //ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
+
+function applySettings() {
+    chrome.storage.sync.set( window.settings , function(result) {
+    });
 }
 
 function addAlarm() {
@@ -80,45 +66,6 @@ function onMessageListener(request, sender, sendResponse) {
 
 
 function fireNotifications(changes) {
-    var changes = [];
-
-    var change = {
-        id: 1,
-        imgSrc: 'img/logo.png',
-        title: 'HI',
-        message: 'Oh, yeah!',
-        url: 'http://www.ya.ru'
-    };
-
-    changes.push(change);
-
-    change = {
-        id: 2,
-        imgSrc: 'img/logo.png',
-        title: 'HI',
-        message: 'Oh, yeah!',
-        url: 'http://www.ya.ru'
-    };
-    changes.push(change);
-
-    change = {
-        id: 3,
-        imgSrc: 'img/logo.png',
-        title: 'HI',
-        message: 'Oh, yeah!',
-        url: 'http://www.ya.ru'
-    };
-    changes.push(change);
-
-    change = {
-        id: 4,
-        imgSrc: 'img/logo.png',
-        title: 'HI',
-        message: 'Oh, yeah!',
-        url: 'http://www.ya.ru'
-    };
-    changes.push(change);
-
     for(var i=0; i<changes.length && i<10; i++) {
         fireSingleNotification(changes[i]);
     }
@@ -136,9 +83,8 @@ function fireSingleNotification(change) {
             requireInteraction: true
         }, function callback(createdId) {
 
-            ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
             // Событие оповещения для Google analytics
-            //gaNotificationCreateCallback();
+            // ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
 
             var handler = function(id) {
                 if(id == createdId) {
@@ -146,9 +92,8 @@ function fireSingleNotification(change) {
                     chrome.notifications.clear(id);
                     chrome.notifications.onClicked.removeListener(handler);
 
-                    ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
                     // Событие перехода по оповещению для Google analytics
-                    //gaNotificationOpenUrlCallback();
+                    // ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
                 }
             };
             chrome.notifications.onClicked.addListener(handler);
@@ -202,36 +147,85 @@ function loadProduct(params) {
     });
 }
 
+//===== PRODUCTION =====
+// function parsePrice(response, productCode) {
+//     var page =  $( (' ' + response).slice(1) );
+//     var productDivSearchStr = 'div.ii-product[data-sku="' + productCode + '"]';
+//     return $(page).find(productDivSearchStr).find('div.ii-product__price').attr('data-current');
+// }
+//===== PRODUCTION =====
+
+//===== TEST =====
 function parsePrice(response, productCode) {
     var page =  $( (' ' + response).slice(1) );
-    var productDivSearchStr = 'div.ii-product[data-sku="' + productCode + '"]';
-    return $(page).find(productDivSearchStr).find('div.ii-product__price').attr('data-current');
+    var productDivSearchStr = 'td.productPrice';
+    return $(page).find(productDivSearchStr).attr('data-current');
 }
+//===== TEST =====
 
 // Хз что
-function lockUpdate() {
-    var updateObj = chrome.storage.local.get('priceChecker_updateObject', function() {});
-    if(typeof updateObj == 'undefined' || updateObj == null) {
-        updateObj = {
-            lastTime: new Date().getTime(),
-            lock: true
-        };
-    }
-    else {
-        var nowTime = new Date().getTime();
-        if(nowTime - updateObj.lastTime < 60000 || updateObj.lock == true) {
-            return false;
-        }
-    }
+// function lockUpdate() {
+//     var updateObj = chrome.storage.local.get('priceChecker_updateObject', function() {});
+//     if(typeof updateObj == 'undefined' || updateObj == null) {
+//         updateObj = {
+//             lastTime: new Date().getTime(),
+//             lock: true
+//         };
+//     }
+//     else {
+//         var nowTime = new Date().getTime();
+//         if(nowTime - updateObj.lastTime < 60000 || updateObj.lock == true) {
+//             return false;
+//         }
+//     }
+//
+//     chrome.storage.local.set( {'priceChecker_updateObject':  updateObj });
+//     return true;
+// }
+//
+// function unlockUpdate() {
+//     var updateObj = {
+//         lastTime: new Date().getTime(),
+//         lock: false
+//     };
+//     chrome.storage.local.set( {'priceChecker_updateObject':  updateObj });
+// }
 
-    chrome.storage.local.set( {'priceChecker_updateObject':  updateObj });
-    return true;
-}
 
-function unlockUpdate() {
-    var updateObj = {
-        lastTime: new Date().getTime(),
-        lock: false
-    };
-    chrome.storage.local.set( {'priceChecker_updateObject':  updateObj });
-}
+// var changes = [];
+//
+// var change = {
+//     id: 1,
+//     imgSrc: 'img/logo.png',
+//     title: 'HI',
+//     message: 'Oh, yeah!',
+//     url: 'http://www.ya.ru'
+// };
+// changes.push(change);
+//
+// change = {
+//     id: 2,
+//     imgSrc: 'img/logo.png',
+//     title: 'HI',
+//     message: 'Oh, yeah!',
+//     url: 'http://www.ya.ru'
+// };
+// changes.push(change);
+//
+// change = {
+//     id: 3,
+//     imgSrc: 'img/logo.png',
+//     title: 'HI',
+//     message: 'Oh, yeah!',
+//     url: 'http://www.ya.ru'
+// };
+// changes.push(change);
+//
+// change = {
+//     id: 4,
+//     imgSrc: 'img/logo.png',
+//     title: 'HI',
+//     message: 'Oh, yeah!',
+//     url: 'http://www.ya.ru'
+// };
+// changes.push(change);
