@@ -76,7 +76,7 @@ function removeProduct(id, renderCallback) {
         delete productData.productPrices[id];
 
         chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices }, function(res) {
-            var productTable = loadProductTable(productData)
+            var productTable = loadProductTable(productData).sort(byLastUpdate);
             if(!isEmpty(renderCallback)) {
                 renderCallback(productTable);
             }
@@ -263,6 +263,17 @@ function updatePricesFromSite(updateList) {
                             removeProduct(code);
                         }
                     }
+                }
+                else if(newPrice == false) {
+                    changeNotification = {
+                        code: product.code,
+                        oldPrice: null,
+                        newPrice: null
+                    };
+                    removeProduct(code);
+                }
+                else if(newPrice == -1) {
+                    // Ошибка получения HTML страницы товара -  ничего не делаем
                 }
                 else {
                     changeNotification = updateProductPrices(productPrices, code, newPrice, settings.maxPriceToShow);

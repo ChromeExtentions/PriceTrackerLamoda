@@ -1,5 +1,4 @@
 ;
-onAlarmListener();
 
 //--- Загрузка настроек расширения
     window.settings = {};
@@ -31,6 +30,19 @@ function applySettings() {
     };
     chrome.storage.sync.set( window.settings , function(result) {
     });
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-91379404-02', 'auto');
+    ga('create', 'UA-91379404-02', 'lamoda.ru', 'myTracker', {
+        transport: 'beacon'
+    });
+    ga('myTracker.set', 'checkProtocolTask', function(){}); // Removes failing protocol check. @see: http://stackoverflow.com/a/22152353/1958200
+    ga('myTracker.require', 'displayfeatures');
+    //ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
 }
 
 function addAlarm() {
@@ -44,6 +56,7 @@ function addAlarm() {
 
 //=============================== ВОТ ТУТ ВСЕ ОТСЛЕЖИВАНИЕ И ПРОИСХОДИТ ===================================
 function onAlarmListener() {
+
     fireNotifications({});
 
     // getProductUpdateList()
@@ -68,10 +81,43 @@ function onMessageListener(request, sender, sendResponse) {
 
 function fireNotifications(changes) {
     var changes = [];
-    changes.push( { code: 'AAA1', oldPrice: 100, newPrice: 200 } );
-    changes.push( { code: 'AAA2', oldPrice: 200, newPrice: 300 } );
-    changes.push( { code: 'AAA3', oldPrice: 300, newPrice: 100 } );
-    changes.push( { code: 'AAA4', oldPrice: 400, newPrice: 500 } );
+
+    var change = {
+        id: 1,
+        imgSrc: 'img/logo.png',
+        title: 'HI',
+        message: 'Oh, yeah!',
+        url: 'http://www.ya.ru'
+    };
+
+    changes.push(change);
+
+    change = {
+        id: 2,
+        imgSrc: 'img/logo.png',
+        title: 'HI',
+        message: 'Oh, yeah!',
+        url: 'http://www.ya.ru'
+    };
+    changes.push(change);
+
+    change = {
+        id: 3,
+        imgSrc: 'img/logo.png',
+        title: 'HI',
+        message: 'Oh, yeah!',
+        url: 'http://www.ya.ru'
+    };
+    changes.push(change);
+
+    change = {
+        id: 4,
+        imgSrc: 'img/logo.png',
+        title: 'HI',
+        message: 'Oh, yeah!',
+        url: 'http://www.ya.ru'
+    };
+    changes.push(change);
 
     for(var i=0; i<changes.length && i<10; i++) {
         fireSingleNotification(changes[i]);
@@ -90,6 +136,7 @@ function fireSingleNotification(change) {
             requireInteraction: true
         }, function callback(createdId) {
 
+            ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
             // Событие оповещения для Google analytics
             //gaNotificationCreateCallback();
 
@@ -99,6 +146,7 @@ function fireSingleNotification(change) {
                     chrome.notifications.clear(id);
                     chrome.notifications.onClicked.removeListener(handler);
 
+                    ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
                     // Событие перехода по оповещению для Google analytics
                     //gaNotificationOpenUrlCallback();
                 }
@@ -133,10 +181,23 @@ function loadProduct(params) {
     return new Promise(function(resolve, reject) {
         sleep(params.index * 2000);
         $.get(params.product.url, function(response) {
-            resolve( { code: params.product.code, price: parsePrice(response, params.product.code) } );
+            if(response.status == 200) {
+                resolve( { code: params.product.code, price: parsePrice(response, params.product.code) } );
+            }
+            else if(response.status == 404) {
+                resolve( { code: params.product.code, price: false } );
+            }
+            else {
+                resolve( { code: params.product.code, price: -1 } );
+            }
         })
-        .fail(function() {
-            resolve( { code: params.product.code, price: -1 } );
+        .fail(function(response) {
+            if(response.status == 404) {
+                resolve( { code: params.product.code, price: false } );
+            }
+            else {
+                resolve( { code: params.product.code, price: -1 } );
+            }
         });
     });
 }

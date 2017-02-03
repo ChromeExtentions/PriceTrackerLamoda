@@ -6,6 +6,10 @@ $( function() {
 
         // has product div container
         if( $('div.ii-product').length > 0 ) {
+
+            // Сколько раз пытаться найти кнопку консультанта, чтобы прицепить к ней нашу кнопку
+            window.maxConsultantAttachAttempts = 5;
+
             addTrackButton();
         }
 
@@ -18,9 +22,12 @@ function addTrackButton() {
 
     var lamodaConsultantContainer = $('#cleversite_clever_container');
 
-    if(typeof lamodaConsultantContainer != 'undefined' &&  $(lamodaConsultantContainer).find('div').length > 0) {
+    if( (typeof lamodaConsultantContainer != 'undefined' &&  $(lamodaConsultantContainer).find('div').length > 0)) {
         var lamodaConsultantPosition = lamodaConsultantContainer.position();
         var topButtonCoord = lamodaConsultantPosition.top - TRACK_BUTTON_HEIGHT;
+
+        // Мини-хак чтоб не глючила высота
+        console.log(lamodaConsultantPosition.top);
 
         var buttonPath = chrome.extension.getURL("content/trackButton.html");
         $.get(buttonPath, function(data){
@@ -34,22 +41,24 @@ function addTrackButton() {
 
         });
     }
-    else {
+    else if(window.maxConsultantAttachAttempts == 0) {
 
-        // Временно - куда-то делся консультант
+        // Если отсутствует кнопка консультант
         var buttonPath = chrome.extension.getURL("content/trackButton.html");
-        $.get(buttonPath, function(data){
+        $.get(buttonPath, function (data) {
 
             $('body').append(data);
 
             setLogoImagePath();
             bindClickEventListener();
 
-            $('#trackProductContainerDiv').css("top", 0);
+            $('#trackProductContainerDiv').css("top", 160);
         });
-
-        // keep trying until lamoda consultant container loads
-        //setTimeout( addTrackButton, 1000);
+    }
+    else {
+        // Раз в секунду пытаемся прицепить кнопку к консультанту
+        window.maxConsultantAttachAttempts--;
+        setTimeout( addTrackButton, 1000);
     }
 }
 
@@ -82,8 +91,8 @@ function bindClickEventListener() {
 
 function resizeImgAndStoreProduct(forSave, imgSrc, wantedWidth, wantedHeight)
 {
-    $('body').append('<canvas id="resizedCanvas" style="display: none;"></canvas>');
-    $('body').append('<div id="tmpContainer" style="display: none;"></div>');
+    //$('body').append('<canvas id="resizedCanvas" style="display: none;"></canvas>');
+    //$('body').append('<div id="tmpContainer" style="display: none;"></div>');
 
     forSave.imgSrc = imgSrc;
     sendProductInfo(forSave);
