@@ -213,7 +213,7 @@ function updatePricesFromSite(updateList) {
             for(var i=0; i<updateList.length; i++) {
 
                 var code = updateList[i].code;
-                var newPrice = parseInt(updateList[i].price);
+                var newPrice = !isEmpty(updateList[i].price) ? parseInt(updateList[i].price) : null;
                 var product = productList[code];
                 var changeNotification = null;
 
@@ -226,9 +226,9 @@ function updatePricesFromSite(updateList) {
                     }
 
                     // Отсутствие цены обнаружено не в первый раз, но товар еще не считается отсутствующим
-                    else if(product.tryMissing == true) {
+                    else if(product.tryMissing === true) {
                         var lastUpdateInMillis = Date.parse(product.lastUpdate);
-                        var currentDateInMillis = new Date().getTime;
+                        var currentDateInMillis = new Date().getTime();
 
                         // Если цена отсутствует меньше missingAfterDays, то ничего не делаем, ждем пока пройдет missingCheckPeriod
                         if( (currentDateInMillis - lastUpdateInMillis) < (86400000 * settings.missingAfterDays) ) {  // 86 400 000 миллисекунд в сутках
@@ -247,7 +247,8 @@ function updatePricesFromSite(updateList) {
                                     oldPrice: null,
                                     newPrice: null
                                 };
-                                removeProduct(code);
+                                delete productList[code];
+                                delete productPrices[code];
                             }
                         }
                     }
@@ -262,7 +263,8 @@ function updatePricesFromSite(updateList) {
                                 oldPrice: null,
                                 newPrice: null
                             };
-                            removeProduct(code);
+                            delete productList[code];
+                            delete productPrices[code];
                         }
                     }
                 }
@@ -272,7 +274,8 @@ function updatePricesFromSite(updateList) {
                         oldPrice: null,
                         newPrice: null
                     };
-                    removeProduct(code);
+                    delete productList[code];
+                    delete productPrices[code];
                 }
                 else if(newPrice == -1) {
                     // Ошибка получения HTML страницы товара -  ничего не делаем

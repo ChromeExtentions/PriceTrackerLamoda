@@ -4,6 +4,10 @@ function isEmpty(obj) {
         return true;
     }
 
+    if(typeof obj == 'string') {
+        return obj.length == 0;
+    }
+
     if(Object.prototype.toString.call( obj ) === '[object Array]') {
         return obj.length <= 0;
     }

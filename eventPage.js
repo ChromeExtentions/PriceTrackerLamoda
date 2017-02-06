@@ -36,7 +36,7 @@ function applySettings() {
 function addAlarm() {
     var alarmInfo = chrome.storage.local.get('priceChecker_task', function() {});
     if(typeof alarmInfo == 'undefined' || alarmInfo == null || alarmInfo.periodInMinutes == 'undefined' || alarmInfo.periodInMinutes == null) {
-        alarmInfo = { when: 1000, periodInMinutes: 1 };
+        alarmInfo = { when: 1000, periodInMinutes: 0.5 };
         chrome.alarms.create('priceChecker', alarmInfo);
         chrome.storage.local.set( {'priceChecker_task':  alarmInfo });
     }

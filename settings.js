@@ -20,13 +20,13 @@ function applyEmbeddedSettings() {
 //=================================== TEST ====================================
 
     window.settings = {
-        updateInterval: 30, // в секундах
+        updateInterval: 20, // в секундах
         changeThresholdUnitRub: 100,
         changeThresholdUnitPercent: 4,
         changeThresholdUnit: 'rouble',
         missingAfterDays: 0.00035, // В итоге получится 30 секунд
         trackIfMissing: true,
-        missingCheckPeriod: 0.00035, // В итоге получится 30 секунд
+        missingCheckPeriod: 0.00000035, // В итоге получится 30 секунд
         missingCheckTimes: 4,
         maxPriceToShow: 2,
         maxProductCount: 10,

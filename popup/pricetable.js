@@ -59,7 +59,7 @@ var renderProductTable = function(productTable, itemTemplate) {
             }
         }
         else if(newPrice == null) {
-            $(tdPriceOld).text("Товар временно отсутствует. Последняя цена - " + oldPrice + " руб.");
+            $(tdPriceOld).text("Товар временно отсутствует.<br>Последняя цена - " + oldPrice + " руб.");
         }
         else {
             $(tdPriceOld).text("Было " + oldPrice + " руб.");
