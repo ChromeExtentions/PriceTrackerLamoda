@@ -224,7 +224,7 @@ function updatePricesFromSite(updateList) {
             for(var i=0; i<updateList.length; i++) {
 
                 var code = updateList[i].code;
-                var newPrice = !isEmpty(updateList[i].price) ? parseInt(updateList[i].price) : null;
+                var newPrice = !isEmpty(updateList[i].price) ? updateList[i].price === false ? false : parseInt(updateList[i].price) : null;
                 var product = productList[code];
                 var changeNotification = null;
 
