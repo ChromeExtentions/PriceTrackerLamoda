@@ -10,9 +10,9 @@ function addProduct(request, sendResponseCallback) {
             productList = {};
         }
 
-        var productCount = productList.length;
+        var productCount = sizeOf(productList);
         if(productCount >= settings.maxProductCount) {
-            sendResponseCallback("Лимит отслеживаемых товаров исчерпан");
+            sendResponseCallback( { result: "Лимит отслеживаемых товаров исчерпан" } );
             return;
         }
         else {
@@ -43,7 +43,9 @@ function addProduct(request, sendResponseCallback) {
                 productPrices = {};
             }
 
-            updateProductPrices(productPrices, id, request.price, settings.maxPriceToShow);
+            if(!isEmpty(request.price)) {
+                updateProductPrices(productPrices, id, request.price, settings.maxPriceToShow);
+            }
 
             productData.productList = productList;
             productData.productPrices = productPrices;
@@ -185,12 +187,16 @@ function randomizeProductUpdateTime(productUpdateList) {
             var resultUpdateList = productUpdateList.slice(0, MAX_PRODUCTS);
 
             for(var i=0; i<subListForRandomize.length; i++) {
-                subListForRandomize[i].nextUpdate = newRandomUpdateTime().toString();
-                productList[subListForRandomize[i].code] = subListForRandomize[i];
+                productList[subListForRandomize[i].code].nextUpdate = newRandomUpdateTime().toString();
             }
-            chrome.storage.local.set( { productList : productData.productList }, function(result) {
+            if(subListForRandomize.length > 0) {
+                chrome.storage.local.set( { productList : productData.productList }, function(result) {
+                    resolve(resultUpdateList); // RESOLVE //
+                });
+            }
+            else {
                 resolve(resultUpdateList); // RESOLVE //
-            });
+            }
         });
     });
 }
@@ -286,15 +292,17 @@ function updatePricesFromSite(updateList) {
                     // Ошибка получения HTML страницы товара -  ничего не делаем
                 }
                 else {
+                    // Есть новая цена
                     changeNotification = updateProductPrices(productPrices, code, newPrice, settings.maxPriceToShow);
-                    if(becomeAvailable(productPrices[code])) {
+
+                    // Товар отсутсвовал
+                    if(product.tryMissing === true || Number.isInteger(product.tryMissing)) {
                         product.tryMissing = null;
                     }
                     product.nextUpdate =  newUpdateTime(settings.updateInterval).toString();
                 }
 
                 if(!isEmpty(changeNotification)) {
-
                     // Формируем уведомления только если цена изменилась
                     // (случаи с отсутствием/появлением/снятием с наблюдения товара пока НЕ ОБРАБАТЫВАЕМ)
                     if( changeNotification.oldPrice != null && changeNotification.newPrice != null) {
@@ -369,6 +377,14 @@ function isTimeToUpdate(dateStringIn) {
     return current.getTime() > Date.parse(dateStringIn);
 }
 
+function sizeOf(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
+
 function newUpdateTime(updateInterval) { // Интервал в часах
 //===== PRODUCTION =====
 //    var currentInMillis = new Date().getTime();
@@ -405,13 +421,6 @@ function priceChanged(priceOld, priceNew) {
     }
 
     throw "Ошибка при расчете изменения цены";
-}
-
-function becomeAvailable(priceArray) {
-    if(isEmpty(priceArray) || priceArray.length < 2) {
-        return false;
-    }
-    return priceArray[priceArray.length-2] == null && priceArray[priceArray.length-1] != null && priceArray[priceArray.length-1] > 0;
 }
 
 //============= Может пригодится ==================

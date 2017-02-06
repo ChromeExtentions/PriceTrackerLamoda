@@ -1,4 +1,5 @@
 ;
+
 function isEmpty(obj) {
     if(typeof obj == 'undefined' || obj == null) {
         return true;
