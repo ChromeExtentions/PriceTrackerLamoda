@@ -55,11 +55,12 @@ var renderProductTable = function(productTable, itemTemplate) {
                 $(tdPriceOld).text("Новая цена " + newPrice + " руб.");
             }
             else {
-                $(tdPriceOld).text("Товар отсутствует в продаже");
+                $(tdPriceOld).text("Товар отсутствует");
             }
         }
         else if(newPrice == null) {
-            $(tdPriceOld).text("Товар временно отсутствует.<br>Последняя цена - " + oldPrice + " руб.");
+            var lastPriceText = 'Последняя цена - ' + oldPrice + ' руб.';
+            $(tdPriceOld).text("Товар отсутствует.\n" + lastPriceText);
         }
         else {
             $(tdPriceOld).text("Было " + oldPrice + " руб.");

@@ -109,11 +109,16 @@ function loadProductTable(productData) {
         var newPrice = null;
         if(value.tryMissing > 0) {
             oldPrice = prices.length > 0 ? prices[prices.length-1] : null;
+
+            oldPrice = oldPrice == 0 ? null : oldPrice;
             newPrice = null;
         }
         else {
             oldPrice = prices.length > 0 ? prices.length > 1 ? prices[prices.length-2] : null : null;
             newPrice = prices.length > 0 ? prices[prices.length-1] : null;
+
+            oldPrice = oldPrice == 0 ? null : oldPrice;
+            newPrice = newPrice == 0 ? null : newPrice;
         }
 
         productTable.push(
