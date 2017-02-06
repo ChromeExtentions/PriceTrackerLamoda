@@ -25,7 +25,7 @@
   },
   "content_scripts": [
       {
-        "matches": [ "http://*/*", "https://*/*", "file:///*"],
+        "matches": [ "http://www.lamoda.ru/*", "file:///*" ],
         "js": [ "lib/jquery-3.1.1.min.js", "util.js", "content/onpage.js" ]
       }
   ],
@@ -40,7 +40,8 @@
       "test/*"
   ],
 
-      "content_security_policy": "script-src 'self' https://www.google-analytics.com/analytics.js; object-src 'self'",
+      "content_security_policy": "script-src 'self' https://www.google-analytics.com/analytics.js; object-src 'self';",
+
       "permissions": [
           "alarms",
           "storage",

@@ -17,13 +17,7 @@ function addProduct(request, sendResponseCallback) {
         }
         else {
 
-//===== PRODUCTION =====
-//             var nextUpdate = newUpdateTime(settings.updateInterval);
-//===== PRODUCTION =====
-
-//===== TEST =====
-            var nextUpdate = newUpdateTimeTest(settings.updateInterval);
-//===== TEST =====
+            var nextUpdate = newUpdateTime(settings.updateInterval);
 
             var product = {
                 name: request.name,
@@ -219,8 +213,8 @@ function updatePricesFromSite(updateList) {
             for(var i=0; i<updateList.length; i++) {
 
                 var code = updateList[i].code;
-                var newPrice = new Number(updateList[i].price);
-                var product = productList[code]
+                var newPrice = parseInt(updateList[i].price);
+                var product = productList[code];
                 var changeNotification = null;
 
                 if(newPrice == null) {
@@ -304,7 +298,7 @@ function updatePricesFromSite(updateList) {
                     }
                 }
                 // Для следующей итерации
-                changeNotification = null;
+                changeNotification = {};
 
             } // for(var i=0; i<updateList.length; i++)
 
@@ -354,7 +348,7 @@ function updateProductPrices(productPrices, id, newPrice, maxPrices) {
 
     change = {
         code: id,
-        oldPrice: priceArray.length > 1 ? priceArray[1] : 0,
+        oldPrice: priceArray.length > 1 ? priceArray[priceArray.length-2] : 0,
         newPrice: priceArray[priceArray.length-1]
     };
     productPrices[id] = priceArray;
@@ -364,12 +358,18 @@ function updateProductPrices(productPrices, id, newPrice, maxPrices) {
 //===================================== HELPERS ==============================================
 function isTimeToUpdate(dateStringIn) {
     var current = new Date();
-    return current.getTime() < Date.parse(dateStringIn);
+    return current.getTime() > Date.parse(dateStringIn);
 }
 
 function newUpdateTime(updateInterval) { // Интервал в часах
-    var currentInMillis = new Date().getTime();
-    return new Date(currentInMillis + (updateInterval)*3600000 + Math.round(3600000*Math.random()));
+//===== PRODUCTION =====
+//    var currentInMillis = new Date().getTime();
+//    return new Date(currentInMillis + (updateInterval)*3600000 + Math.round(3600000*Math.random()));
+//===== PRODUCTION =====
+
+//===== TEST =====
+    return newUpdateTimeTest(updateInterval);
+//===== TEST =====
 }
 
 function newUpdateTimeTest(updateInterval) { // Интервал в секундах
@@ -387,7 +387,7 @@ function byLastUpdate(left, right) {
 }
 
 function priceChanged(priceOld, priceNew) {
-    var delta = priceOld - priceNew;
+    var delta = Math.abs(priceOld - priceNew);
 
     if(window.settings.changeThresholdUnit == 'rouble') {
         return delta >= window.settings.changeThresholdUnitRub;

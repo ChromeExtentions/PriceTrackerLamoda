@@ -1,5 +1,6 @@
 ;
 $( function() {
+    applyEmbeddedSettings();
 
     if(window.settings.testApp == true) {
         var allLinks = $('div.testDiv a');

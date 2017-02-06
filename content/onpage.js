@@ -68,6 +68,34 @@ function bindClickEventListener() {
 }
 
 function resizeImgAndStoreProduct(forSave, wantedWidth, wantedHeight) {
+
+    //$('body').append('<canvas id="resizedCanvas"></canvas>');
+    //
+    //var img = new Image();
+    ////img.crossOrigin = 'Anonymous';
+    //img.onload = function() {
+    //    var can = document.getElementById('resizedCanvas');
+    //    var ctx = can.getContext('2d');
+    //    ctx.drawImage(img, 0, 0);
+    //    forSave.imgBase64Big = can.toDataURL();
+    //
+    //    ctx = can.getContext('2d');
+    //
+    //    // We set the dimensions at the wanted size.
+    //    can.width = wantedWidth;
+    //    can.height = wantedHeight;
+    //
+    //    ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
+    //
+    //    forSave.imgBase64 = can.toDataURL();
+    //
+    //    //------ Send product data to extention ---------
+    //    sendProductInfo(forSave);
+    //};
+    //
+    //img.src = 'http:' + forSave.imgSrc;
+
+
     sendProductInfo(forSave);
 }
 

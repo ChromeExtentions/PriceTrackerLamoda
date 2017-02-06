@@ -8,7 +8,7 @@
     addAlarm();
 
 //--- Слушатель запуска фоновой задачи
-//    chrome.alarms.onAlarm.addListener(onAlarmListener);
+    chrome.alarms.onAlarm.addListener(onAlarmListener);
 
 //--- Слушатель входящих сообщений (с сайта: добавить товар)
     chrome.runtime.onMessage.addListener(onMessageListener);
@@ -27,8 +27,10 @@
     //ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
 
 function applySettings() {
-    chrome.storage.sync.set( window.settings , function(result) {
-    });
+    applyEmbeddedSettings();
+    // Здесь назначение настроек из хранилища, когда нужно будет
+    //chrome.storage.sync.set( window.settings , function(result) {
+    //});
 }
 
 function addAlarm() {
@@ -43,13 +45,13 @@ function addAlarm() {
 //=============================== ВОТ ТУТ ВСЕ ОТСЛЕЖИВАНИЕ И ПРОИСХОДИТ ===================================
 function onAlarmListener() {
 
-    fireNotifications({});
 
-    // getProductUpdateList()
-    //     .then(randomizeProductUpdateTime)
-    //     .then(downloadProductUpdates)
-    //     .then(updatePricesFromSite)
-    //    .then(fireNotifications);
+
+    getProductUpdateList()
+        .then(randomizeProductUpdateTime)
+        .then(downloadProductUpdates)
+        .then(updatePricesFromSite)
+        .then(fireNotifications);
 }
 
 // Сообщение со страницы о добавлении товара
@@ -66,6 +68,9 @@ function onMessageListener(request, sender, sendResponse) {
 
 
 function fireNotifications(changes) {
+    if(isEmpty(changes)) {
+        changes = [];
+    }
     for(var i=0; i<changes.length && i<10; i++) {
         fireSingleNotification(changes[i]);
     }
@@ -76,7 +81,7 @@ function fireSingleNotification(change) {
         'priceChangedNotification' + change.id,
         {
             type: 'basic',
-            iconUrl: change.imgSrc,
+            iconUrl: 'img/logo.png',
             title: change.title,
             message: change.message,
             isClickable: true,
@@ -125,18 +130,21 @@ function downloadProductUpdates(productUpdateList){
 function loadProduct(params) {
     return new Promise(function(resolve, reject) {
         sleep(params.index * 2000);
-        $.get(params.product.url, function(response) {
-            if(response.status == 200) {
+        $.ajax(
+            {
+                url: params.product.url,
+                type: "GET",
+                statusCode: {
+                    404: function() {
+                        resolve( { code: params.product.code, price: false } );
+                    }
+                }
+            }
+        ).done( function(response)
+            {
                 resolve( { code: params.product.code, price: parsePrice(response, params.product.code) } );
             }
-            else if(response.status == 404) {
-                resolve( { code: params.product.code, price: false } );
-            }
-            else {
-                resolve( { code: params.product.code, price: -1 } );
-            }
-        })
-        .fail(function(response) {
+        ).fail(function(response) {
             if(response.status == 404) {
                 resolve( { code: params.product.code, price: false } );
             }
@@ -158,7 +166,7 @@ function loadProduct(params) {
 //===== TEST =====
 function parsePrice(response, productCode) {
     var page =  $( (' ' + response).slice(1) );
-    var productDivSearchStr = 'td.productPrice';
+    var productDivSearchStr = 'td#productPrice';
     return $(page).find(productDivSearchStr).attr('data-current');
 }
 //===== TEST =====
