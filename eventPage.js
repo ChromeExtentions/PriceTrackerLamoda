@@ -4,6 +4,8 @@
     window.settings = {};
     applySettings();
 
+    unlock();
+
 //--- Запуск периодической фоновой задачи (выполняется каждую минуту)
     addAlarm();
 
@@ -46,7 +48,7 @@ function addAlarm() {
 function onAlarmListener() {
     // Создаем лок, чтобы фоновые задачи не запускались одновременно
     chrome.storage.local.get( 'priceChecker_lock', function(result) {
-        if(!isEmpty(result.priceChecker_lock) && result.priceChecker_lock === false) {
+        if(isEmpty(result.priceChecker_lock) || result.priceChecker_lock === false) {
             chrome.storage.local.set( {'priceChecker_lock':  true }, function() {
                 process();
             });
@@ -55,7 +57,7 @@ function onAlarmListener() {
 }
 
 function process() {
-    getProductUpdateList()
+    promise_getProductUpdateList()
         .then(promise_randomizeProductUpdateTime, unlock)
         .then(promise_downloadProductUpdates, unlock)
         .then(promise_updatePricesFromSite, unlock)

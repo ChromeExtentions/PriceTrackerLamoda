@@ -141,7 +141,7 @@ function loadProductTable(productData) {
     return productTable;
 }
 
-function getProductUpdateList() {
+function promise_getProductUpdateList() {
 
     return new Promise( function (resolve, reject) {
         chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
@@ -213,7 +213,7 @@ function promise_updatePricesFromSite(updateList) {
 
             var productList = productData.productList;
             if(isEmpty(productList)) {
-                throw "Невозможно обнаружить данные о товарах в хранилище";
+                reject("Невозможно обнаружить данные о товарах в хранилище");
             }
 
             var productPrices = productData.productPrices;
