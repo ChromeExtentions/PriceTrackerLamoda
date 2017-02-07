@@ -34,8 +34,8 @@ function addTrackButton() {
             var lamodaConsultantPosition = lamodaConsultantContainer.position();
             var topButtonCoord = lamodaConsultantPosition.top - TRACK_BUTTON_HEIGHT;
 
-            // Мини-хак чтоб не глючила высота
-            console.log(lamodaConsultantPosition.top);
+            // Хак чтоб не глючило положение кнопки по вертикали
+            console.log(isEmpty(lamodaConsultantPosition) ? lamodaConsultantPosition.top : '');
 
             $(templateHtml).css("top", topButtonCoord)
             $('body').append(templateHtml);
@@ -130,7 +130,7 @@ function getProductData() {
     var priceElement = $('#productPrice');
     var imgSrc = $('#productImg').find('img').attr('src');
     return {
-        name: $(titleElement).text(),
+        name: normalizeString( $(titleElement).text() ),
         code: $('#productId').attr('data-sku'),
         url: chrome.extension.getURL( document.URL.substr(document.URL.lastIndexOf('test/product')) ),
         imgSrc: imgSrc.substr(5),
@@ -138,6 +138,15 @@ function getProductData() {
         price: Number($(priceElement).attr('data-current'))
     };
 }
+
+function normalizeString(str) {
+    return str
+                .replace(/^\s+/, '')
+                .replace(/\s+$/, '')
+                .replace('\n', '')
+                .replace(/ +(?= )/g, ' ');
+}
+
 //===== TEST =====
 
 function extractUrlProtoDomainPath() {

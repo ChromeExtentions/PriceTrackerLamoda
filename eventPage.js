@@ -44,9 +44,6 @@ function addAlarm() {
 
 //=============================== ВОТ ТУТ ВСЕ ОТСЛЕЖИВАНИЕ И ПРОИСХОДИТ ===================================
 function onAlarmListener() {
-
-
-
     getProductUpdateList()
         .then(randomizeProductUpdateTime)
         .then(downloadProductUpdates)

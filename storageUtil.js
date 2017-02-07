@@ -27,6 +27,7 @@ function addProduct(request, sendResponseCallback) {
                 imgBase64: request.imgBase64,
                 nextUpdate: nextUpdate.toString(),
                 lastUpdate: new Date().toString(),
+                lastChangeDate: new Date().toString(),
                 tryMissing: null
             };
 
@@ -131,11 +132,12 @@ function loadProductTable(productData) {
                 url: value.url,
                 oldPrice: oldPrice,
                 newPrice: newPrice,
-                lastUpdate: value.lastUpdate
+                lastChangeDate: value.lastChangeDate
             }
         );
 
     });
+    console.log(productTable);
     return productTable;
 }
 
@@ -292,7 +294,7 @@ function updatePricesFromSite(updateList) {
                     // Ошибка получения HTML страницы товара -  ничего не делаем
                 }
                 else {
-                    // Есть новая цена
+                    // Есть цена
                     changeNotification = updateProductPrices(productPrices, code, newPrice, settings.maxPriceToShow);
 
                     // Товар отсутсвовал
@@ -303,12 +305,14 @@ function updatePricesFromSite(updateList) {
                 }
 
                 if(!isEmpty(changeNotification)) {
+                    product.lastChangeDate = new Date().toString();
+
                     // Формируем уведомления только если цена изменилась
                     // (случаи с отсутствием/появлением/снятием с наблюдения товара пока НЕ ОБРАБАТЫВАЕМ)
                     if( changeNotification.oldPrice != null && changeNotification.newPrice != null) {
                         changeNotification.imgSrc = product.imgSrc;
                         changeNotification.title = changeNotification.newPrice > changeNotification.oldPrice ? ' Повышение цены на laModa' : 'Скидка на laModa' ;
-                        changeNotification.message = product.name + ' теперь стоит ' + changeNotification.newPrice + ' рублей';
+                        changeNotification.message = (product.name + ' теперь стоит ' + changeNotification.newPrice + ' рублей').replace(/\s+$/, '');;
                         changeNotification.url = product.url;
                         changes.push(changeNotification);
                     }
@@ -407,7 +411,7 @@ function newRandomUpdateTime() {
 }
 
 function byLastUpdate(left, right) {
-    return Date.parse(right.lastUpdate) - Date.parse(left.lastUpdate);
+    return Date.parse(right.lastChangeDate) - Date.parse(left.lastChangeDate);
 }
 
 function priceChanged(priceOld, priceNew) {

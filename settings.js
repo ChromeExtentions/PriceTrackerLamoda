@@ -29,7 +29,7 @@ function applyEmbeddedSettings() {
         missingCheckPeriod: 0.00000035, // В итоге получится 30 секунд
         missingCheckTimes: 4,
         maxPriceToShow: 2,
-        maxProductCount: 5,
+        maxProductCount: 6,
         maxProductCountUpdatePerTime: 3,
         maxNotificationCount: 10,
         testApp: true,

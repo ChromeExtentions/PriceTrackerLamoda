@@ -52,7 +52,7 @@ var renderProductTable = function(productTable, itemTemplate) {
 
         if(oldPrice == null) {
             if(newPrice != null) {
-                $(tdPriceOld).text("Новая цена " + newPrice + " руб.");
+                $(tdPriceNew).text(" " + newPrice + " руб.");
             }
             else {
                 $(tdPriceOld).text("Товар отсутствует");
