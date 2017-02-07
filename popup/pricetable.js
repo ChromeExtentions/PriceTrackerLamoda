@@ -39,9 +39,6 @@ var renderProductTable = function(productTable, itemTemplate) {
         var removeButton = itemHtml.find('button.removeProduct')[0];
         var rowId = itemHtml.find('.data-id')[0];
 
-        console.log(aLink);
-        console.log(productTable[i].url);
-
         $(rowId).val(productTable[i].code);
         $(labelName).text(productTable[i].name);
         $(aLink).attr('href', productTable[i].url);

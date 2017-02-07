@@ -8,7 +8,6 @@ $( function() {
     //
     //         // Сколько раз пытаться найти кнопку консультанта, чтобы прицепить к ней нашу кнопку
     //         window.maxConsultantAttachAttempts = 5;
-    //
     //         addTrackButton();
     //     }
     // }

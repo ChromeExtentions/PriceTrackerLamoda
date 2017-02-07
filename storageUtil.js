@@ -166,14 +166,14 @@ function getProductUpdateList() {
     });
 }
 
-function randomizeProductUpdateTime(productUpdateList) {
+function promise_randomizeProductUpdateTime(productUpdateList) {
 
     var settings = window.settings;
 
     return new Promise( function (resolve, reject) {
 
         if(isEmpty(productUpdateList)) {
-            return;
+            resolve([]);
         }
 
         var MAX_PRODUCTS = settings.maxProductCountUpdatePerTime;
@@ -204,7 +204,7 @@ function randomizeProductUpdateTime(productUpdateList) {
 }
 
 //  updateList -> [ { code: code, price: newPrice } ]
-function updatePricesFromSite(updateList) {
+function promise_updatePricesFromSite(updateList) {
 
     var settings = window.settings;
 

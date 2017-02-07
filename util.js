@@ -14,7 +14,11 @@ function isEmpty(obj) {
     }
 
     if(Object.prototype.toString.call( obj ) === '[object Object]') {
-        return obj.length <= 0;
+        var size = 0, key;
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) size++;
+        }
+        return size == 0;
     }
 
     return false;

@@ -44,11 +44,27 @@ function addAlarm() {
 
 //=============================== ВОТ ТУТ ВСЕ ОТСЛЕЖИВАНИЕ И ПРОИСХОДИТ ===================================
 function onAlarmListener() {
+    // Создаем лок, чтобы фоновые задачи не запускались одновременно
+    chrome.storage.local.get( 'priceChecker_lock', function(result) {
+        if(!isEmpty(result.priceChecker_lock) && result.priceChecker_lock === false) {
+            chrome.storage.local.set( {'priceChecker_lock':  true }, function() {
+                process();
+            });
+        }
+    });
+}
+
+function process() {
     getProductUpdateList()
-        .then(randomizeProductUpdateTime)
-        .then(downloadProductUpdates)
-        .then(updatePricesFromSite)
-        .then(fireNotifications);
+        .then(promise_randomizeProductUpdateTime, unlock)
+        .then(promise_downloadProductUpdates, unlock)
+        .then(promise_updatePricesFromSite, unlock)
+        .then(promise_fireNotifications, unlock)
+        .then(unlock);
+}
+
+function unlock() {
+    chrome.storage.local.set( {'priceChecker_lock':  false });
 }
 
 // Сообщение со страницы о добавлении товара
@@ -64,16 +80,19 @@ function onMessageListener(request, sender, sendResponse) {
 }
 
 
-function fireNotifications(changes) {
-    if(isEmpty(changes)) {
-        changes = [];
-    }
-    for(var i=0; i<changes.length && i<10; i++) {
-        fireSingleNotification(changes[i]);
-    }
+function promise_fireNotifications(changes) {
+    return new Promise(function(resolve, reject) {
+        if (isEmpty(changes)) {
+            changes = [];
+            resolve({});
+        }
+        for (var i = 0; i < changes.length && i < 10; i++) {
+            fireSingleNotification(changes[i], resolve);
+        }
+    });
 }
 
-function fireSingleNotification(change) {
+function fireSingleNotification(change, resolve) {
     chrome.notifications.create(
         'priceChangedNotification' + change.id,
         {
@@ -99,10 +118,11 @@ function fireSingleNotification(change) {
                 }
             };
             chrome.notifications.onClicked.addListener(handler);
+            resolve({});
         });
 }
 
-function downloadProductUpdates(productUpdateList){
+function promise_downloadProductUpdates(productUpdateList){
     return new Promise(function(resolve, reject) {
         if(isEmpty(productUpdateList)) {
             resolve([]);
