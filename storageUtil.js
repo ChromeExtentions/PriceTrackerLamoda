@@ -418,7 +418,13 @@ function newUpdateTimeTest(updateInterval) { // Интервал в секунд
 
 function newRandomUpdateTime() {
     var currentInMillis = new Date().getTime();
-    return new Date(currentInMillis + 3600000*Math.random());
+//===== PRODUCTION =====
+//    return new Date(currentInMillis + 3600000*Math.random());
+//===== PRODUCTION =====
+
+//===== TEST =====
+    return new Date(currentInMillis + 600000*Math.random());
+//===== TEST =====
 }
 
 function byLastUpdate(left, right) {
