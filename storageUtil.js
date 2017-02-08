@@ -56,12 +56,22 @@ function addProduct(request, sendResponseCallback) {
                         sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
                     }
                     else {
-                         sendResponseCallback({result: "Товар добавлен к отслеживанию"});
+                         sendResponseCallback( {result: "Товар добавлен к отслеживанию"} );
                     }
                 });
         }
     });
 
+}
+
+function checkHasProduct(code, senderResponse) {
+    chrome.storage.local.get( ['productList' ], function(productData) {
+        var productList = productData.productList;
+        if(typeof productList == 'undefined') {
+            productList = {};
+        }
+        senderResponse( { hasProduct: !isEmpty(productList[code]) });
+    });
 }
 
 function getProductTable(renderCallback) {

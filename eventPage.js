@@ -71,6 +71,11 @@ function unlock() {
 
 // Сообщение со страницы о добавлении товара
 function onMessageListener(request, sender, sendResponse) {
+    if(request.hasOwnProperty('article')) {
+        checkHasProduct(request.article, sendResponse);
+        return true; // Чтобы получатель ждал ответа
+    }
+
     try {
         addProduct(request, sendResponse);
     }
@@ -78,7 +83,7 @@ function onMessageListener(request, sender, sendResponse) {
         sendResponse( { result: "Произошла ошибка. Попробуйте еще раз." } );
         return;
     }
-    return true;
+    return true; // Чтобы получатель ждал ответа
 }
 
 

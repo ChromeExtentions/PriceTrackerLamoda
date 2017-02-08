@@ -33,6 +33,6 @@ function applyEmbeddedSettings() {
         maxProductCountUpdatePerTime: 3,
         maxNotificationCount: 10,
         testApp: true,
-        pathToTestProducts: 'file:///C:/Users/user/Desktop/extension/PriceTracker/'
+        pathToTestProducts: 'file:///C:/projects/PriceTrackerLamoda/'
     };
 }

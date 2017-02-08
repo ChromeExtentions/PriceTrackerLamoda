@@ -8,6 +8,9 @@ $( function() {
     //
     //         // Сколько раз пытаться найти кнопку консультанта, чтобы прицепить к ней нашу кнопку
     //         window.maxConsultantAttachAttempts = 5;
+    //         chrome.runtime.sendMessage( { article: getArticle() } , function(response) {
+    //             addTrackButton(response.hasProduct);
+    //         });
     //         addTrackButton();
     //     }
     // }
@@ -15,11 +18,13 @@ $( function() {
 
     //===== TEST =====
     window.maxConsultantAttachAttempts = 5;
-    addTrackButton();
+    chrome.runtime.sendMessage( { article: getArticle() } , function(response) {
+        addTrackButton(     (isEmpty(response) || isEmpty(response.hasProduct)) ? false : response.hasProduct);
+    });
     //===== TEST =====
 });
 
-function addTrackButton() {
+function addTrackButton(hasProduct) {
     var TRACK_BUTTON_HEIGHT = 80;
     var lamodaConsultantContainer = $('#cleversite_clever_container');
     var buttonPath = chrome.extension.getURL("content/trackButton.html");
@@ -28,6 +33,9 @@ function addTrackButton() {
         var templateHtml =  $( (' ' + data).slice(1) );
         setLogoImagePath(templateHtml);
 
+        if(hasProduct === true) {
+            $(templateHtml).find('#trackProductLabelTd').text('Товар добавлен к отслеживанию');
+        };
 
         if( (typeof lamodaConsultantContainer != 'undefined' &&  $(lamodaConsultantContainer).find('div').length > 0)) {
             var lamodaConsultantPosition = lamodaConsultantContainer.position();
@@ -38,18 +46,20 @@ function addTrackButton() {
 
             $(templateHtml).css("top", topButtonCoord)
             $('body').append(templateHtml);
-            bindClickEventListener();
+            if(hasProduct !== true) { bindClickEventListener() };
         }
         else if(window.maxConsultantAttachAttempts == 0) {
         // Если отсутствует кнопка консультант
             $(templateHtml).css("top", 160);
             $('body').append(templateHtml);
-            bindClickEventListener();
+            if(hasProduct !== true) { bindClickEventListener() };
         }
         else {
             // Раз в секунду пытаемся прицепить кнопку к консультанту
             window.maxConsultantAttachAttempts--;
-            setTimeout( addTrackButton, 100);
+            setTimeout( function() {
+                addTrackButton(hasProduct);
+            }, 100);
         }
     });
 
@@ -121,6 +131,10 @@ function sendProductInfo(forSave) {
 //         price: Number($(priceElement).attr('data-current'))
 //     };
 // }
+
+//function getArticle() {
+//    return $('div.ii-product').attr('data-sku');
+//}
 //===== PRODUCTION =====
 
 //===== TEST =====
@@ -137,6 +151,10 @@ function getProductData() {
         price: Number($(priceElement).attr('data-current'))
     };
 }
+function getArticle() {
+    return $('#productId').attr('data-sku');
+}
+//===== TEST =====
 
 function normalizeString(str) {
     return str
@@ -145,8 +163,6 @@ function normalizeString(str) {
                 .replace('\n', '')
                 .replace(/ +(?= )/g, ' ');
 }
-
-//===== TEST =====
 
 function extractUrlProtoDomainPath() {
     var url = document.URL;
