@@ -24,9 +24,9 @@ function applyEmbeddedSettings() {
         changeThresholdUnitRub: 100,
         changeThresholdUnitPercent: 4,
         changeThresholdUnit: 'rouble',
-        missingAfterDays: 0.0007, // В итоге получится 30 секунд
+        missingAfterDays: 0.0007, // В итоге получится 1 минута
         trackIfMissing: true,
-        missingCheckPeriod: 0.00000035, // В итоге получится 30 секунд
+        missingCheckPeriod: 0.0000014, // В итоге получится 2 минуты
         missingCheckTimes: 4,
         maxPriceToShow: 2,
         maxProductCount: 6,

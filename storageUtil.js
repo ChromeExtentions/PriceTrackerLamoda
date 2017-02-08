@@ -142,12 +142,13 @@ function loadProductTable(productData) {
                 url: value.url,
                 oldPrice: oldPrice,
                 newPrice: newPrice,
-                lastChangeDate: value.lastChangeDate
+                lastChangeDate: value.lastChangeDate,
+                lastUpdateTime: value.lastUpdate,
+                nextUpdateTime: value.nextUpdate
             }
         );
 
     });
-    console.log(productTable);
     return productTable;
 }
 
