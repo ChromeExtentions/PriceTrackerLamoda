@@ -153,7 +153,6 @@ function loadProductTable(productData) {
 }
 
 function promise_getProductUpdateList() {
-
     return new Promise( function (resolve, reject) {
         chrome.storage.local.get( ['productList', 'productPrices'], function(productData) {
 
@@ -178,7 +177,6 @@ function promise_getProductUpdateList() {
 }
 
 function promise_randomizeProductUpdateTime(productUpdateList) {
-
     var settings = window.settings;
 
     return new Promise( function (resolve, reject) {
@@ -216,7 +214,6 @@ function promise_randomizeProductUpdateTime(productUpdateList) {
 
 //  updateList -> [ { code: code, price: newPrice } ]
 function promise_updatePricesFromSite(updateList) {
-
     var settings = window.settings;
 
     return new Promise(function(resolve, reject){

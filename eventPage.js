@@ -62,7 +62,7 @@ function process() {
         .then(promise_downloadProductUpdates, unlock)
         .then(promise_updatePricesFromSite, unlock)
         .then(promise_fireNotifications, unlock)
-        .then(unlock);
+        .then(unlock, unlock);
 }
 
 function unlock() {
@@ -89,44 +89,51 @@ function onMessageListener(request, sender, sendResponse) {
 
 function promise_fireNotifications(changes) {
     return new Promise(function(resolve, reject) {
-        if (isEmpty(changes)) {
-            changes = [];
-            resolve({});
+        for(var i=0; i<changes.length; i++) {
+            fireSingleNotification(changes[i]);
         }
-        for (var i = 0; i < changes.length && i < 10; i++) {
-            fireSingleNotification(changes[i], resolve);
-        }
+        //Promise.all(changes.map(fireSingleNotification)).then(
+        //    function(results) {
+        //        resolve(results);
+        //    }
+        //);
+        resolve({});
     });
 }
 
-function fireSingleNotification(change, resolve) {
-    chrome.notifications.create(
-        'priceChangedNotification' + change.id,
-        {
-            type: 'basic',
-            iconUrl: change.imgBase64, //'img/logo.png',
-            title: change.title,
-            message: change.message,
-            isClickable: true,
-            requireInteraction: true
-        }, function callback(createdId) {
+function getOptions(change) {
+    return {
+        type: 'basic',
+        iconUrl: !isEmpty(change.imgBase64) ? change.imgBase64 : 'img/logo.png',
+        title: change.title,
+        message: change.message,
+        isClickable: true,
+        requireInteraction: true
+    };
+}
 
-            // Событие оповещения для Google analytics
-            // ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
+function fireSingleNotification(change) {
+    //return new Promise(function(resolve, reject) {
+        chrome.notifications.create('priceChangedNotification' + change.code, getOptions(change),
+            function callback(createdId) {
 
-            var handler = function(id) {
-                if(id == createdId) {
-                    chrome.tabs.create({ url: change.url });
-                    chrome.notifications.clear(id);
-                    chrome.notifications.onClicked.removeListener(handler);
+                // Событие оповещения для Google analytics
+                // ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
 
-                    // Событие перехода по оповещению для Google analytics
-                    // ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
-                }
-            };
-            chrome.notifications.onClicked.addListener(handler);
-            resolve({});
-        });
+                var handler = function(id) {
+                    if(id == createdId) {
+                        chrome.tabs.create({ url: change.url });
+                        chrome.notifications.clear(id);
+                        chrome.notifications.onClicked.removeListener(handler);
+
+                        // Событие перехода по оповещению для Google analytics
+                        // ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
+                    }
+                };
+                chrome.notifications.onClicked.addListener(handler);
+                //resolve({});
+            });
+    //});
 }
 
 function promise_downloadProductUpdates(productUpdateList){
@@ -151,9 +158,16 @@ function promise_downloadProductUpdates(productUpdateList){
     });
 }
 
-function loadProduct(params) {
+function loadProduct(param) {
     return new Promise(function(resolve, reject) {
-        sleep(params.index * 2000);
+        setTimeout(function() {
+            download(param).then( function(result) { resolve(result) } );
+        }, param.index * 2000);
+    });
+}
+
+function download(params) {
+    return new Promise(function(resolve, reject) {
         $.ajax(
             {
                 url: params.product.url,

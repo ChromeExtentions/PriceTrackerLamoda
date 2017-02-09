@@ -74,8 +74,6 @@ var renderProductTable = function(productTable, itemTemplate) {
                 '</td></tr></tbody></table></td></tr>';
 
                 $(priceElementTableBody).append(timeTable);
-
-                console.log($(itemTemplate).find('.priceTableElementBody').text());
         }
 
         $(removeButton).attr("data-id", productTable[i].code);
