@@ -138,7 +138,7 @@ function loadProductTable(productData) {
             {
                 code: value.code,
                 name: value.name,
-                imgSrc: value.imgSrc,
+                imgBase64: value.imgBase64,
                 url: value.url,
                 oldPrice: oldPrice,
                 newPrice: newPrice,
@@ -321,7 +321,7 @@ function promise_updatePricesFromSite(updateList) {
                     // Формируем уведомления только если цена изменилась
                     // (случаи с отсутствием/появлением/снятием с наблюдения товара пока НЕ ОБРАБАТЫВАЕМ)
                     if( changeNotification.oldPrice != null && changeNotification.newPrice != null) {
-                        changeNotification.imgSrc = product.imgSrc;
+                        changeNotification.imgBase64 = product.imgBase64;
                         changeNotification.title = changeNotification.newPrice > changeNotification.oldPrice ? ' Повышение цены на laModa' : 'Скидка на laModa' ;
                         changeNotification.message = (product.name + ' теперь стоит ' + changeNotification.newPrice + ' рублей').replace(/\s+$/, '');;
                         changeNotification.url = product.url;

@@ -72,40 +72,11 @@ function setLogoImagePath(templateHtml) {
 
 function bindClickEventListener() {
     $('#trackButton').click(function(e) {
-        resizeImgAndStoreProduct( getProductData() , 80, 80);
+        var forSave = getProductData();
+        getSmallImage(forSave, 80, 80).then(function() {
+            sendProductInfo(forSave);
+        });
     });
-}
-
-function resizeImgAndStoreProduct(forSave, wantedWidth, wantedHeight) {
-
-    //$('body').append('<canvas id="resizedCanvas"></canvas>');
-    //
-    //var img = new Image();
-    ////img.crossOrigin = 'Anonymous';
-    //img.onload = function() {
-    //    var can = document.getElementById('resizedCanvas');
-    //    var ctx = can.getContext('2d');
-    //    ctx.drawImage(img, 0, 0);
-    //    forSave.imgBase64Big = can.toDataURL();
-    //
-    //    ctx = can.getContext('2d');
-    //
-    //    // We set the dimensions at the wanted size.
-    //    can.width = wantedWidth;
-    //    can.height = wantedHeight;
-    //
-    //    ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
-    //
-    //    forSave.imgBase64 = can.toDataURL();
-    //
-    //    //------ Send product data to extention ---------
-    //    sendProductInfo(forSave);
-    //};
-    //
-    //img.src = 'http:' + forSave.imgSrc;
-
-
-    sendProductInfo(forSave);
 }
 
 function sendProductInfo(forSave) {
@@ -131,9 +102,44 @@ function sendProductInfo(forSave) {
 //         price: Number($(priceElement).attr('data-current'))
 //     };
 // }
-
+//
 //function getArticle() {
 //    return $('div.ii-product').attr('data-sku');
+//}
+//function getSmallImage(forSave, wantedWidth, wantedHeight) {
+//    return new Promise( function(resolve, reject) {
+//        $('body').append('<canvas id="resizedCanvas" style="display: none"></canvas>');
+//        var oReq = new XMLHttpRequest();
+//        oReq.open("GET", forSave.imgSrc, true);
+//        oReq.responseType = "arraybuffer";
+//        oReq.onload = function(oEvent) {
+//
+//            if(oEvent.status == 200) {
+//                var arrayBuffer = oReq.response;
+//                var byteArray = new Uint8Array(arrayBuffer);
+//                var img = new Image();
+//                img.crossOrigin = 'Anonymous';
+//                img.onload = function() {
+//                    var can = document.getElementById('resizedCanvas');
+//                    var ctx = can.getContext('2d');
+//                    ctx.drawImage(img, 0, 0);
+//                    ctx = can.getContext('2d');
+//                    can.width = wantedWidth;
+//                    can.height = wantedHeight;
+//                    ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
+//                    forSave.imgBase64 = can.toDataURL();
+//
+//                    //------ Send product data to extention ---------
+//                    resolve(forSave);
+//                };
+//                img.src = "data:image/png;base64," + base64ArrayBuffer(byteArray);
+//            }
+//            else {
+//                resolve();
+//            }
+//        };
+//        oReq.send();
+//    });
 //}
 //===== PRODUCTION =====
 
@@ -151,8 +157,16 @@ function getProductData() {
         price: Number($(priceElement).attr('data-current'))
     };
 }
+
 function getArticle() {
     return $('#productId').attr('data-sku');
+}
+
+function getSmallImage(forSave, wantedWidth, wantedHeight) {
+    return new Promise( function(resolve, reject) {
+        forSave.imgBase64 = 'http:' + forSave.imgSrc;
+        resolve(forSave);
+    });
 }
 //===== TEST =====
 
@@ -164,125 +178,54 @@ function normalizeString(str) {
                 .replace(/ +(?= )/g, ' ');
 }
 
-function extractUrlProtoDomainPath() {
-    var url = document.URL;
-    var pattern = '/';
-    var count = 0;
-    var i = 0;
+function base64ArrayBuffer(arrayBuffer) {
+    var base64    = ''
+    var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
-    while (count<3 || index < url.length-1) {
-        count = url[i++] === pattern ? count+1 : count;
-        if(count == 3) {
-            return  url.substr(0, i-1);
-        }
+    var bytes         = new Uint8Array(arrayBuffer)
+    var byteLength    = bytes.byteLength
+    var byteRemainder = byteLength % 3
+    var mainLength    = byteLength - byteRemainder
+
+    var a, b, c, d
+    var chunk
+
+    // Main loop deals with bytes in chunks of 3
+    for (var i = 0; i < mainLength; i = i + 3) {
+        // Combine the three bytes into a single integer
+        chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
+
+        // Use bitmasks to extract 6-bit segments from the triplet
+        a = (chunk & 16515072) >> 18 // 16515072 = (2^6 - 1) << 18
+        b = (chunk & 258048)   >> 12 // 258048   = (2^6 - 1) << 12
+        c = (chunk & 4032)     >>  6 // 4032     = (2^6 - 1) << 6
+        d = chunk & 63               // 63       = 2^6 - 1
+
+        // Convert the raw binary segments to the appropriate ASCII encoding
+        base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d]
     }
-    return null;
+
+    // Deal with the remaining bytes and padding
+    if (byteRemainder == 1) {
+        chunk = bytes[mainLength]
+
+        a = (chunk & 252) >> 2 // 252 = (2^6 - 1) << 2
+
+        // Set the 4 least significant bits to zero
+        b = (chunk & 3)   << 4 // 3   = 2^2 - 1
+
+        base64 += encodings[a] + encodings[b] + '=='
+    } else if (byteRemainder == 2) {
+        chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]
+
+        a = (chunk & 64512) >> 10 // 64512 = (2^6 - 1) << 10
+        b = (chunk & 1008)  >>  4 // 1008  = (2^6 - 1) << 4
+
+        // Set the 2 least significant bits to zero
+        c = (chunk & 15)    <<  2 // 15    = 2^4 - 1
+
+        base64 += encodings[a] + encodings[b] + encodings[c] + '='
+    }
+
+    return base64
 }
-
-//var img = new Image();
-////img.crossOrigin = 'Anonymous';
-//img.onload = function() {
-//    var can = document.getElementById('resizedCanvas');
-//    var ctx = can.getContext('2d');
-//    ctx.drawImage(img, 0, 0);
-//    forSave.imgBase64Big = can.toDataURL();
-//
-//    ctx = can.getContext('2d');
-//
-//    // We set the dimensions at the wanted size.
-//    can.width = wantedWidth;
-//    can.height = wantedHeight;
-//
-//    ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
-//
-//    forSave.imgBase64 = can.toDataURL();
-//
-//    //------ Send product data to extention ---------
-//    sendProductInfo(forSave);
-//};
-//
-//img.src = imgSrc;
-
-
-//
-//$('#tmpContainer').load('http://google.com'); // SERIOUSLY!
-//
-//$.ajax({
-//    url: imgSrc,
-//    type: 'GET',
-//    success: function(res) {
-//        //forSave.imgBase64Big = "data:image/jpg;base64," + res;
-//        //var blob = new Blob([res], {type: "image/jpeg"});
-//        //var url = URL.createObjectURL(blob);
-//
-//        var img = new Image();
-//        //img.crossOrigin = 'Anonymous';
-//        img.onload = function() {
-//            var can = document.getElementById('resizedCanvas');
-//            var ctx = can.getContext('2d');
-//            ctx.drawImage(img, 0, 0);
-//            ctx = can.getContext('2d');
-//            can.width = wantedWidth;
-//            can.height = wantedHeight;
-//            ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
-//            forSave.imgBase64 = can.toDataURL();
-//
-//            //------ Send product data to extention ---------
-//            sendProductInfo(forSave);
-//        };
-//
-//        img.src = "data:image/png;base64," + arrayBuffer2Base64(res);
-//    }
-//});
-
-//var oReq = new XMLHttpRequest();
-//oReq.open("GET", imgSrc, true);
-//oReq.responseType = "arraybuffer";
-//
-//oReq.onload = function(oEvent) {
-//    var arrayBuffer = oReq.response;
-//
-//    var byteArray = new Uint8Array(arrayBuffer);
-//
-//    var b64encoded = btoa(String.fromCharCode.apply(null, byteArray));
-//
-//    var img = new Image();
-//    //img.crossOrigin = 'Anonymous';
-//    img.onload = function() {
-//        var can = document.getElementById('resizedCanvas');
-//        var ctx = can.getContext('2d');
-//        ctx.drawImage(img, 0, 0);
-//        ctx = can.getContext('2d');
-//        can.width = wantedWidth;
-//        can.height = wantedHeight;
-//        ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
-//        forSave.imgBase64 = can.toDataURL();
-//
-//        //------ Send product data to extention ---------
-//        sendProductInfo(forSave);
-//    };
-//
-//    img.src = "data:image/png;base64," + b64encoded;
-//};
-//
-//oReq.send();
-
-// function arrayBuffer2Base64(arraybuffer) {
-//     var bytes = new Uint8Array(arraybuffer),
-//         i, len = bytes.length, base64 = "";
-//
-//     for (i = 0; i < len; i+=3) {
-//         base64 += chars[bytes[i] >> 2];
-//         base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
-//         base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
-//         base64 += chars[bytes[i + 2] & 63];
-//     }
-//
-//     if ((len % 3) === 2) {
-//         base64 = base64.substring(0, base64.length - 1) + "=";
-//     } else if (len % 3 === 1) {
-//         base64 = base64.substring(0, base64.length - 2) + "==";
-//     }
-//
-//     return base64;
-// }

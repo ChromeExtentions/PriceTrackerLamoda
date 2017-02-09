@@ -104,7 +104,7 @@ function fireSingleNotification(change, resolve) {
         'priceChangedNotification' + change.id,
         {
             type: 'basic',
-            iconUrl: 'img/logo.png',
+            iconUrl: change.imgBase64, //'img/logo.png',
             title: change.title,
             message: change.message,
             isClickable: true,
@@ -194,70 +194,3 @@ function parsePrice(response, productCode) {
     return $(page).find(productDivSearchStr).attr('data-current');
 }
 //===== TEST =====
-
-// Хз что
-// function lockUpdate() {
-//     var updateObj = chrome.storage.local.get('priceChecker_updateObject', function() {});
-//     if(typeof updateObj == 'undefined' || updateObj == null) {
-//         updateObj = {
-//             lastTime: new Date().getTime(),
-//             lock: true
-//         };
-//     }
-//     else {
-//         var nowTime = new Date().getTime();
-//         if(nowTime - updateObj.lastTime < 60000 || updateObj.lock == true) {
-//             return false;
-//         }
-//     }
-//
-//     chrome.storage.local.set( {'priceChecker_updateObject':  updateObj });
-//     return true;
-// }
-//
-// function unlockUpdate() {
-//     var updateObj = {
-//         lastTime: new Date().getTime(),
-//         lock: false
-//     };
-//     chrome.storage.local.set( {'priceChecker_updateObject':  updateObj });
-// }
-
-
-// var changes = [];
-//
-// var change = {
-//     id: 1,
-//     imgSrc: 'img/logo.png',
-//     title: 'HI',
-//     message: 'Oh, yeah!',
-//     url: 'http://www.ya.ru'
-// };
-// changes.push(change);
-//
-// change = {
-//     id: 2,
-//     imgSrc: 'img/logo.png',
-//     title: 'HI',
-//     message: 'Oh, yeah!',
-//     url: 'http://www.ya.ru'
-// };
-// changes.push(change);
-//
-// change = {
-//     id: 3,
-//     imgSrc: 'img/logo.png',
-//     title: 'HI',
-//     message: 'Oh, yeah!',
-//     url: 'http://www.ya.ru'
-// };
-// changes.push(change);
-//
-// change = {
-//     id: 4,
-//     imgSrc: 'img/logo.png',
-//     title: 'HI',
-//     message: 'Oh, yeah!',
-//     url: 'http://www.ya.ru'
-// };
-// changes.push(change);

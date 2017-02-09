@@ -44,7 +44,7 @@ var renderProductTable = function(productTable, itemTemplate) {
         $(rowId).val(productTable[i].code);
         $(labelName).text(productTable[i].name);
         $(aLink).attr('href', productTable[i].url);
-        $(productImg).attr('src', productTable[i].imgSrc);
+        $(productImg).attr('src', productTable[i].imgBase64);
 
         var oldPrice = productTable[i].oldPrice;
         var newPrice = productTable[i].newPrice;
