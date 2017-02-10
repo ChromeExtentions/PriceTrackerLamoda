@@ -1,17 +1,6 @@
 ;
 $(function() {
-
     getProductTable(renderCallback);
-
-    //var _gaq = _gaq || [];
-    //_gaq.push(['_setAccount', 'UA-91379404-2']);
-    //_gaq.push(['_trackPageview']);
-    //
-    //var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    //ga.src = 'https://ssl.google-analytics.com/ga.js';
-    //var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-
-
 });
 
 var renderCallback = function(productTable) {
@@ -29,21 +18,28 @@ var renderCallback = function(productTable) {
 
 var renderProductTable = function(productTable, itemTemplate) {
 
+    var utm = '?utm_source=extention&utm_medium=media&utm_campaign=ProductList';
+
     $('#mainTableBody').empty();
     for(var i=0; i<productTable.length; i++) {
+        var url = productTable[i].url + utm;
+
         var itemHtml =  $( (' ' + itemTemplate).slice(1) );
         var tdPriceOld = itemHtml.find('.productPriceOld')[0];
         var tdPriceNew = itemHtml.find('.productPriceNew')[0];
         var labelName = itemHtml.find('label.productName')[0];
         var aLink = itemHtml.find('.productLink')[0];
+        var aLink2 = itemHtml.find('.productLink')[1];
         var productImg = itemHtml.find('img.product')[0];
         var removeButton = itemHtml.find('button.removeProduct')[0];
         var rowId = itemHtml.find('.data-id')[0];
         var priceElementTableBody = itemHtml.find('.priceTableElementBody')[0];
+        var priceRow = itemHtml.find('tr.clickable-row')[0];
 
         $(rowId).val(productTable[i].code);
         $(labelName).text(productTable[i].name);
-        $(aLink).attr('href', productTable[i].url);
+        $(aLink).attr('href', url);
+        $(aLink2).attr('href', url);
         $(productImg).attr('src', productTable[i].imgBase64);
 
         var oldPrice = productTable[i].oldPrice;
@@ -77,6 +73,7 @@ var renderProductTable = function(productTable, itemTemplate) {
         }
 
         $(removeButton).attr("data-id", productTable[i].code);
+        $(priceRow).attr('data-url', productTable[i].url);
 
         $('#mainTableBody').append(itemHtml);
 
@@ -84,6 +81,14 @@ var renderProductTable = function(productTable, itemTemplate) {
             e.preventDefault();
             var productCode = $(this).attr('data-id');
             removeProduct(productCode, renderCallback);
+        });
+
+        $('tr.clickable-row').click(function(e) {
+            e.preventDefault();
+            var url = $(this).attr('data-url');
+            window.open(url + utm, '_blank');
+            window.focus();
+
         });
     }
 };

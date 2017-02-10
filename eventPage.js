@@ -38,7 +38,7 @@ function applySettings() {
 function addAlarm() {
     var alarmInfo = chrome.storage.local.get('priceChecker_task', function() {});
     if(typeof alarmInfo == 'undefined' || alarmInfo == null || alarmInfo.periodInMinutes == 'undefined' || alarmInfo.periodInMinutes == null) {
-        alarmInfo = { when: 1000, periodInMinutes: 0.5 };
+        alarmInfo = { when: 1000, periodInMinutes: 1 };
         chrome.alarms.create('priceChecker', alarmInfo);
         chrome.storage.local.set( {'priceChecker_task':  alarmInfo });
     }
@@ -122,7 +122,8 @@ function fireSingleNotification(change) {
 
                 var handler = function(id) {
                     if(id == createdId) {
-                        chrome.tabs.create({ url: change.url });
+                        var utm = '?utm_source=extention&utm_medium=media&utm_campaign=Notification';
+                        chrome.tabs.create({ url: change.url + utm});
                         chrome.notifications.clear(id);
                         chrome.notifications.onClicked.removeListener(handler);
 
@@ -193,18 +194,15 @@ function download(params) {
     });
 }
 
-//===== PRODUCTION =====
-// function parsePrice(response, productCode) {
-//     var page =  $( (' ' + response).slice(1) );
-//     var productDivSearchStr = 'div.ii-product[data-sku="' + productCode + '"]';
-//     return $(page).find(productDivSearchStr).find('div.ii-product__price').attr('data-current');
-// }
-//===== PRODUCTION =====
-
-//===== TEST =====
-function parsePrice(response, productCode) {
-    var page =  $( (' ' + response).slice(1) );
-    var productDivSearchStr = 'td#productPrice';
-    return $(page).find(productDivSearchStr).attr('data-current');
-}
-//===== TEST =====
+ function parsePrice(response, productCode) {
+     if(window.settings.testApp === true) {
+        var page =  $( (' ' + response).slice(1) );
+        var productDivSearchStr = 'td#productPrice';
+        return $(page).find(productDivSearchStr).attr('data-current');
+     }
+     else {
+         var page =  $( (' ' + response).slice(1) );
+         var productDivSearchStr = 'div.ii-product[data-sku="' + productCode + '"]';
+         return $(page).find(productDivSearchStr).find('div.ii-product__price').attr('data-current');
+     }
+ }

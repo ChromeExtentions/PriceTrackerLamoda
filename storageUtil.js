@@ -120,9 +120,10 @@ function loadProductTable(productData) {
 
         var oldPrice = null;
         var newPrice = null;
+
+        // Если товар отсутствует
         if(value.tryMissing > 0) {
             oldPrice = prices.length > 0 ? prices[prices.length-1] : null;
-
             oldPrice = oldPrice == 0 ? null : oldPrice;
             newPrice = null;
         }
@@ -238,6 +239,7 @@ function promise_updatePricesFromSite(updateList) {
                 var product = productList[code];
                 var changeNotification = null;
 
+                // цена полученная с сайта в процессе обновления
                 if(newPrice == null) {
 
                     // Первый раз обнаружено, что цена отсутствует - устанавливаем точку отсчета, т.е. прекращаем обновлять lastUpdate
@@ -289,6 +291,7 @@ function promise_updatePricesFromSite(updateList) {
                         }
                     }
                 }
+                // сигнал к удалению товара
                 else if(newPrice == false) {
                     changeNotification = {
                         code: product.code,
@@ -299,10 +302,10 @@ function promise_updatePricesFromSite(updateList) {
                     delete productPrices[code];
                 }
                 else if(newPrice == -1) {
-                    // Ошибка получения HTML страницы товара -  ничего не делаем
+                    // Прочие временные ошибки при получении цены -  ничего не делаем
                 }
                 else {
-                    // Есть цена
+                    // Есть новая цена
                     changeNotification = updateProductPrices(productPrices, code, newPrice, settings.maxPriceToShow);
 
                     // Товар отсутсвовал
@@ -398,14 +401,13 @@ function sizeOf(obj) {
 };
 
 function newUpdateTime(updateInterval) { // Интервал в часах
-//===== PRODUCTION =====
-//    var currentInMillis = new Date().getTime();
-//    return new Date(currentInMillis + (updateInterval)*3600000 + Math.round(3600000*Math.random()));
-//===== PRODUCTION =====
-
-//===== TEST =====
-    return newUpdateTimeTest(updateInterval);
-//===== TEST =====
+    if(window.settings.testApp === true) {
+        return newUpdateTimeTest(updateInterval);
+    }
+    else {
+        var currentInMillis = new Date().getTime();
+        return new Date(currentInMillis + (updateInterval)*3600000 + Math.round(3600000*Math.random()));
+    }
 }
 
 function newUpdateTimeTest(updateInterval) { // Интервал в секундах
@@ -415,13 +417,12 @@ function newUpdateTimeTest(updateInterval) { // Интервал в секунд
 
 function newRandomUpdateTime() {
     var currentInMillis = new Date().getTime();
-//===== PRODUCTION =====
-//    return new Date(currentInMillis + 3600000*Math.random());
-//===== PRODUCTION =====
-
-//===== TEST =====
-    return new Date(currentInMillis + 600000*Math.random());
-//===== TEST =====
+    if(window.settings.testApp === true) {
+        return new Date(currentInMillis + 600000*Math.random());
+    }
+    else {
+        return new Date(currentInMillis + 3600000*Math.random());
+    }
 }
 
 function byLastUpdate(left, right) {
