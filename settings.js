@@ -2,7 +2,7 @@
 function applyEmbeddedSettings() {
 //=================================== PROD ====================================
  window.settings = {
-     updateInterval: '8',
+     updateInterval: 8,
      changeThresholdUnitRub: 100,
      changeThresholdUnitPercent: 4,
      changeThresholdUnit: 'rouble',
@@ -14,6 +14,30 @@ function applyEmbeddedSettings() {
      maxProductCount: 60,
      maxProductCountUpdatePerTime: 5,
      maxNotificationCount: 10,
+    GA: {
+        ID: 'UA-91379404-02',
+            tracker: 'MyTracker',
+            catetories:
+        {
+            main: 'chromeExtension'
+        },
+        actions:
+        {
+            showTrackButton: 'showTrackButton',
+                trackProduct: 'trackProduct',
+            productLimitReached: 'productLimitReached',
+            notificationFired: 'notificationFired',
+            notificationClick: 'notificationClick'
+        },
+        labels:
+        {
+            showTrackButton: 'Label_showTrackButton',
+                trackProduct: 'Label_trackProduct',
+            productLimitReached: 'Label_productLimitReached',
+            notificationFired: 'Label_notificationFired',
+            notificationClick: 'Label_notificationClick'
+        },
+    },
      testApp: false
  };
 
@@ -32,6 +56,30 @@ function applyEmbeddedSettings() {
     //    maxProductCount: 6,
     //    maxProductCountUpdatePerTime: 3,
     //    maxNotificationCount: 10,
+    //    GA: {
+    //        ID: 'UA-91379404-02',
+    //        tracker: 'MyTracker',
+    //        catetories:
+    //        {
+    //            main: 'chromeExtension'
+    //        },
+    //        actions:
+    //        {
+    //            showTrackButton: 'showTrackButton',
+    //            trackProduct: 'trackProduct',
+    //            productLimitReached: 'productLimitReached',
+    //            notificationFired: 'notificationFired',
+    //            notificationClick: 'notificationClick'
+    //        },
+    //        labels:
+    //        {
+    //            showTrackButton: 'Label_showTrackButton',
+    //            trackProduct: 'Label_trackProduct',
+    //            productLimitReached: 'Label_productLimitReached',
+    //            notificationFired: 'Label_notificationFired',
+    //            notificationClick: 'Label_notificationClick'
+    //        },
+    //    },
     //    testApp: true,
     //    pathToTestProducts: 'file:///C:/projects/PriceTrackerLamoda/'
     //};

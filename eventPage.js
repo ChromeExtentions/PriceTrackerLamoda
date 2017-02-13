@@ -20,12 +20,12 @@
         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-    ga('create', 'UA-91379404-02', 'auto');
-    ga('create', 'UA-91379404-02', 'lamoda.ru', 'myTracker', {
+    ga('create', window.settings.GA.ID, 'auto');
+    ga('create', window.settings.GA.ID, 'lamoda.ru', window.settings.GA.tracker, {
         transport: 'beacon'
     });
-    ga('myTracker.set', 'checkProtocolTask', function(){}); // Removes failing protocol check. @see: http://stackoverflow.com/a/22152353/1958200
-    ga('myTracker.require', 'displayfeatures');
+    ga(window.settings.GA.tracker + '.set', 'checkProtocolTask', function(){}); // Removes failing protocol check. @see: http://stackoverflow.com/a/22152353/1958200
+    ga(window.settings.GA.tracker + '.require', 'displayfeatures');
     //ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
 
 function applySettings() {
@@ -75,6 +75,10 @@ function onMessageListener(request, sender, sendResponse) {
         checkHasProduct(request.article, sendResponse);
         return true; // Чтобы получатель ждал ответа
     }
+    if(request.hasOwnProperty('showTrackButton')) {
+        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.showTrackButton, window.settings.GA.labels.showTrackButton);
+        return;
+    }
 
     try {
         addProduct(request, sendResponse);
@@ -106,7 +110,7 @@ function getOptions(change) {
         type: 'basic',
         iconUrl: !isEmpty(change.imgBase64) ? change.imgBase64 : 'img/logo.png',
         title: change.title,
-        message: change.message,
+        message: change.message, // чтобы уведомление влазило в одну строку
         isClickable: true,
         requireInteraction: true
     };
@@ -118,17 +122,16 @@ function fireSingleNotification(change) {
             function callback(createdId) {
 
                 // Событие оповещения для Google analytics
-                // ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
+                 ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.notificationFired, window.settings.GA.labels.notificationFired);
 
                 var handler = function(id) {
                     if(id == createdId) {
-                        var utm = '?utm_source=extention&utm_medium=media&utm_campaign=Notification';
-                        chrome.tabs.create({ url: change.url + utm});
+                        chrome.tabs.create({ url: change.url + change.utm });
                         chrome.notifications.clear(id);
                         chrome.notifications.onClicked.removeListener(handler);
 
                         // Событие перехода по оповещению для Google analytics
-                        // ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
+                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.notificationClick, window.settings.GA.labels.notificationClick);
                     }
                 };
                 chrome.notifications.onClicked.addListener(handler);

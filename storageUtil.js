@@ -12,6 +12,7 @@ function addProduct(request, sendResponseCallback) {
 
         var productCount = sizeOf(productList);
         if(productCount >= settings.maxProductCount) {
+            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.productLimitReached, window.settings.GA.labels.productLimitReached);
             sendResponseCallback( { result: "Лимит отслеживаемых товаров исчерпан" } );
             return;
         }
@@ -56,7 +57,8 @@ function addProduct(request, sendResponseCallback) {
                         sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
                     }
                     else {
-                         sendResponseCallback( {result: "Товар добавлен к отслеживанию"} );
+                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.trackProduct, window.settings.GA.labels.trackProduct);
+                        sendResponseCallback( {result: "Товар добавлен к отслеживанию"} );
                     }
                 });
         }
@@ -145,7 +147,8 @@ function loadProductTable(productData) {
                 newPrice: newPrice,
                 lastChangeDate: value.lastChangeDate,
                 lastUpdateTime: value.lastUpdate,
-                nextUpdateTime: value.nextUpdate
+                nextUpdateTime: value.nextUpdate,
+                utm: getUtm()
             }
         );
 
@@ -323,8 +326,9 @@ function promise_updatePricesFromSite(updateList) {
                     if( changeNotification.oldPrice != null && changeNotification.newPrice != null) {
                         changeNotification.imgBase64 = product.imgBase64;
                         changeNotification.title = changeNotification.newPrice > changeNotification.oldPrice ? ' Повышение цены на laModa' : 'Скидка на laModa' ;
-                        changeNotification.message = (product.name + ' теперь стоит ' + changeNotification.newPrice + ' рублей').replace(/\s+$/, '');;
+                        changeNotification.message = (truncateWithEllipsis(product.name, 20) + ' теперь стоит ' + changeNotification.newPrice + ' рублей').replace(/\s+$/, '');;
                         changeNotification.url = product.url;
+                        changeNotification.utm = getUtm(product);
                         changes.push(changeNotification);
                     }
                 }
@@ -387,6 +391,11 @@ function updateProductPrices(productPrices, id, newPrice, maxPrices) {
 }
 
 //===================================== HELPERS ==============================================
+function getUtm(product) {
+    return '?utm_source=extention&utm_medium=media&utm_campaign=ProductList';
+    //return '?utm_source=extention&utm_medium=media&utm_campaign=ProductList' + '{product_id=' + product.code +'}&utm_term{' + product.position + '}'
+}
+
 function isTimeToUpdate(dateStringIn) {
     var current = new Date();
     return current.getTime() > Date.parse(dateStringIn);

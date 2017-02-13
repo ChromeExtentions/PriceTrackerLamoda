@@ -2,7 +2,7 @@
 $( function() {
     applyEmbeddedSettings();
 
-    if(window.settings.testApp == true) {
+    if(window.settings.testApp === true) {
         var allLinks = $('div.testDiv a');
         for( var i=0; i< allLinks.length; i++) {
             $(allLinks[i]).attr('href', window.settings.pathToTestProducts + $(allLinks[i]).attr('href'));

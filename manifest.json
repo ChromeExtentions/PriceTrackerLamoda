@@ -29,6 +29,7 @@
         "js": [ "lib/jquery-3.1.1.min.js", "settings.js", "util.js", "content/onpage.js" ]
       }
   ],
+  "options_page": "options/options.html",
   "web_accessible_resources": [
       "content/trackButton.html",
       "content/notification.html",

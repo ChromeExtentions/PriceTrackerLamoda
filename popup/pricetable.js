@@ -18,11 +18,9 @@ var renderCallback = function(productTable) {
 
 var renderProductTable = function(productTable, itemTemplate) {
 
-    var utm = '?utm_source=extention&utm_medium=media&utm_campaign=ProductList';
-
     $('#mainTableBody').empty();
     for(var i=0; i<productTable.length; i++) {
-        var url = productTable[i].url + utm;
+        var url = productTable[i].url + productTable[i].utm;
 
         var itemHtml =  $( (' ' + itemTemplate).slice(1) );
         var tdPriceOld = itemHtml.find('.productPriceOld')[0];

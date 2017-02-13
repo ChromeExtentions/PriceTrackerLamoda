@@ -24,12 +24,10 @@ function isEmpty(obj) {
     return false;
 };
 
-function isDefined(obj) {
-    return !(typeof obj == 'undefined' || obj == null);
-};
+function truncateWithEllipsis(str, maxLength) {
+    if(isEmpty(str)) {
+        return "";
+    }
 
-function sleep(ms) {
-    var start = new Date().getTime(), expire = start + ms;
-    while (new Date().getTime() < expire) { }
-    return;
+    return str.length > maxLength ? str.substr(0, maxLength) + '...' : str;
 }
