@@ -112,16 +112,30 @@ function addTrackButton(hasProduct) {
 
 
 function setLogoImagePath(templateHtml) {
-    var imgPath = chrome.extension.getURL("img/logo.png");
+    var imgPath = chrome.extension.getURL("img/logo80.png");
     $(templateHtml).find("#logoImage").attr("src", imgPath);
 }
 
 function bindClickEventListener() {
     $('#trackButtonBody').click(function(e) {
         var forSave = getProductData();
-        getSmallImage(forSave, 80, 80).then(function() {  // 80x80 изображение, которое будет отображаться в уведомлении и в списке товаров
-            sendProductInfo(forSave);
-        });
+
+        getSmallImageOuterService(forSave, 80, 80).then( // 80x80 изображение, которое будет отображаться в уведомлении и в списке товаров
+            function() {
+                sendProductInfo(forSave);
+            },
+            function() {
+                getSmallImage(forSave, 80, 80).then(
+                    function() {
+                        sendProductInfo(forSave);
+                    },
+                    function() {
+                        forSave.imgBase64 = getLogoBase64();
+                        sendProductInfo(forSave);
+                    });
+            }
+        );
+
     });
 }
 
@@ -218,12 +232,52 @@ function getSmallImage(forSave, wantedWidth, wantedHeight) {
                     img.src = "data:image/png;base64," + base64ArrayBuffer(byteArray);
                 }
                 else {
-                    resolve();
+                    reject('error');
                 }
             };
-            oReq.send();
+            try {
+                oReq.send();
+            }
+            catch(e) {
+                reject('error');
+            }
+            oReq.onerror = function () {
+                reject('error');
+            };
         });
     }
+}
+
+function getSmallImageOuterService(forSave, wantedWidth, wantedHeight) {
+    return new Promise( function(resolve, reject) {
+        $('body').append('<canvas id="resizedCanvas" style="display: none"></canvas>');
+        var oReq = new XMLHttpRequest();
+
+        var url = 'https://images.weserv.nl/?url=' + forSave.imgSrc + '&w=' + wantedWidth + '&h=' + wantedHeight + '&t=square&a=bottom';
+
+        oReq.open("GET", url, true);
+        oReq.responseType = "arraybuffer";
+        oReq.onload = function(oEvent) {
+            if(oReq.status == 200) {
+                var arrayBuffer = oReq.response;
+                var byteArray = new Uint8Array(arrayBuffer);
+                forSave.imgBase64 = "data:image/png;base64," + base64ArrayBuffer(byteArray);
+                resolve(forSave);
+            }
+            else {
+                reject('failed');
+            }
+        };
+        try {
+            oReq.send();
+        }
+        catch(e) {
+            reject('error');
+        }
+        oReq.onerror = function () {
+            reject('error');
+        };
+    });
 }
 
 
@@ -248,6 +302,10 @@ function extractUrlProtoDomainPath() {
         }
     }
     return null;
+}
+
+function getLogoBase64() {
+    return 'data:image/png;base64,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';
 }
 
 function base64ArrayBuffer(arrayBuffer) {

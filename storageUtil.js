@@ -29,7 +29,8 @@ function addProduct(request, sendResponseCallback) {
                 nextUpdate: nextUpdate.toString(),
                 lastUpdate: new Date().toString(),
                 lastChangeDate: new Date().toString(),
-                tryMissing: null
+                tryMissing: null,
+                startPrice: request.price
             };
 
             var id = product.code;
@@ -143,6 +144,7 @@ function loadProductTable(productData) {
                 name: value.name,
                 imgBase64: value.imgBase64,
                 url: value.url,
+                startPrice: value.startPrice,
                 oldPrice: oldPrice,
                 newPrice: newPrice,
                 lastChangeDate: value.lastChangeDate,
@@ -326,7 +328,8 @@ function promise_updatePricesFromSite(updateList) {
                     if( changeNotification.oldPrice != null && changeNotification.newPrice != null) {
                         changeNotification.imgBase64 = product.imgBase64;
                         changeNotification.title = changeNotification.newPrice > changeNotification.oldPrice ? ' Повышение цены на laModa' : 'Скидка на laModa' ;
-                        changeNotification.message = (truncateWithEllipsis(product.name, 20) + ' теперь стоит ' + changeNotification.newPrice + ' рублей').replace(/\s+$/, '');;
+                        changeNotification.isSale = changeNotification.newPrice < changeNotification.oldPrice;
+                        changeNotification.message = (truncateWithEllipsis(product.name, 15) + ' теперь стоит ' + changeNotification.newPrice + ' рублей').replace(/\s+$/, '');;
                         changeNotification.url = product.url;
                         changeNotification.utm = getUtm(product);
                         changes.push(changeNotification);

@@ -15,6 +15,11 @@
 //--- Слушатель входящих сообщений (с сайта: добавить товар)
     chrome.runtime.onMessage.addListener(onMessageListener);
 
+//-- Нажатие на иконку расширения
+    chrome.browserAction.onClicked.addListener(function(tab) {
+        chrome.browserAction.setBadgeText({text:""});
+    });
+
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -26,7 +31,6 @@
     });
     ga(window.settings.GA.tracker + '.set', 'checkProtocolTask', function(){}); // Removes failing protocol check. @see: http://stackoverflow.com/a/22152353/1958200
     ga(window.settings.GA.tracker + '.require', 'displayfeatures');
-    //ga('myTracker.send', 'event', 'link', 'click', '/option/options.html');
 
 function applySettings() {
     applyEmbeddedSettings();
@@ -105,20 +109,40 @@ function promise_fireNotifications(changes) {
     });
 }
 
-function getOptions(change) {
-    return {
-        type: 'basic',
-        iconUrl: !isEmpty(change.imgBase64) ? change.imgBase64 : 'img/logo.png',
-        title: change.title,
-        message: change.message, // чтобы уведомление влазило в одну строку
-        isClickable: true,
-        requireInteraction: true
-    };
+function getOptions(change, versionNum) {
+    return versionNum >= 50
+        ?
+            {
+                type: 'basic',
+                iconUrl: !isEmpty(change.imgBase64) ? change.imgBase64 : 'img/logo80.png',
+                title: change.title,
+                message: change.message, // чтобы уведомление влазило в одну строку
+                isClickable: true,
+                requireInteraction: true
+            }
+        :
+            {
+                type: 'basic',
+                iconUrl: !isEmpty(change.imgBase64) ? change.imgBase64 : 'img/logo80.png',
+                title: change.title,
+                message: change.message, // чтобы уведомление влазило в одну строку
+                isClickable: true
+            };
 }
 
 function fireSingleNotification(change) {
     //return new Promise(function(resolve, reject) {
-        chrome.notifications.create('priceChangedNotification' + change.code, getOptions(change),
+
+    var version = /Chrome\/([0-9.]+)/.exec(navigator.userAgent)[1];
+    var versionNum = parseInt(version.substr(0, version.indexOf('.')));
+
+    if(change.isSale === true) {
+        //chrome.browserAction.setIcon({path: icon});
+        chrome.browserAction.setBadgeBackgroundColor( {color: '#088A08' });
+        chrome.browserAction.setBadgeText({text:"Sale"});
+    }
+
+        chrome.notifications.create('priceChangedNotification' + change.code, getOptions(change, versionNum),
             function callback(createdId) {
 
                 // Событие оповещения для Google analytics

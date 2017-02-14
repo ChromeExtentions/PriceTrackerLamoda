@@ -34,8 +34,7 @@
       "content/trackButton.html",
       "content/notification.html",
       "lib/bootstrap.min.css",
-      "img/logo.jpg",
-      "img/logo.png",
+      "img/logo80.png",
       "img/close.png",
       "test/*"
   ],
@@ -46,6 +45,7 @@
       "alarms",
       "storage",
       "notifications",
-      "http://*/*"
+      "http://*/*",
+      "https://*/*"
   ]
 }

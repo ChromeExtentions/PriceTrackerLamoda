@@ -1,5 +1,6 @@
 ;
 $(function() {
+    chrome.browserAction.setBadgeText({text:""});
     getProductTable(renderCallback);
 });
 
@@ -23,8 +24,9 @@ var renderProductTable = function(productTable, itemTemplate) {
         var url = productTable[i].url + productTable[i].utm;
 
         var itemHtml =  $( (' ' + itemTemplate).slice(1) );
-        var tdPriceOld = itemHtml.find('.productPriceOld')[0];
+        //var tdPriceOld = itemHtml.find('.productPriceOld')[0];
         var tdPriceNew = itemHtml.find('.productPriceNew')[0];
+        var tdPriceStart = itemHtml.find('.productPriceStart')[0];
         var labelName = itemHtml.find('label.productName')[0];
         var aLink = itemHtml.find('.productLink')[0];
         var aLink2 = itemHtml.find('.productLink')[1];
@@ -40,35 +42,40 @@ var renderProductTable = function(productTable, itemTemplate) {
         $(aLink2).attr('href', url);
         $(productImg).attr('src', productTable[i].imgBase64);
 
+        var utm = productTable[i].utm;
         var oldPrice = productTable[i].oldPrice;
         var newPrice = productTable[i].newPrice;
+        var startPrice = productTable[i].startPrice;
 
         if(oldPrice == null) {
             if(newPrice != null) {
-                $(tdPriceNew).text(" " + newPrice + " руб.");
+                $(tdPriceNew).text("Текущая: " + newPrice + " руб.");
             }
             else {
-                $(tdPriceOld).text("Товар отсутствует");
+                $(tdPriceNew).text("Товар отсутствует");
             }
         }
         else if(newPrice == null) {
-            var lastPriceText = 'Последняя цена - ' + oldPrice + ' руб.';
-            $(tdPriceOld).text("Товар отсутствует.\n" + lastPriceText);
+            //var lastPriceText = 'Последняя цена - ' + oldPrice + ' руб.';
+            //$(tdPriceOld).text("Товар отсутствует.\n" + lastPriceText);
+            $(tdPriceNew).text("Товар отсутствует");
         }
         else {
-            $(tdPriceOld).text("Было " + oldPrice + " руб.");
-            $(tdPriceNew).text("Стало " + newPrice + " руб.");
+            $(tdPriceNew).text("Текущая: " + newPrice + " руб.");
         }
 
+        $(tdPriceStart).text('Начальная:' + startPrice + " руб.");
+
         applyEmbeddedSettings();
-        if(window.settings.testApp === true) {
+
+        //if(window.settings.testApp === true) {
             var timeTable =
                 '<tr><td><table width="100%"><tbody><tr><td class="productTimeOld" width="50%" style="font-size: 10px;"> Last: ' + formatDate( new Date(Date.parse(productTable[i].lastUpdateTime))) +
                 '</td><td class="productTimeNew" width="50%" style="font-size: 10px;"> Next: ' + formatDate( new Date(Date.parse(productTable[i].nextUpdateTime))) +
                 '</td></tr></tbody></table></td></tr>';
 
                 $(priceElementTableBody).append(timeTable);
-        }
+        //}
 
         $(removeButton).attr("data-id", productTable[i].code);
         $(priceRow).attr('data-url', productTable[i].url);
