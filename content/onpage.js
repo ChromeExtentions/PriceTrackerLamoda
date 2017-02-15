@@ -215,6 +215,7 @@ function getSmallImage(forSave, wantedWidth, wantedHeight) {
                         var ctx = can.getContext('2d');
                         ctx.drawImage(img, 0, 0);
                         ctx = can.getContext('2d');
+
                         can.width = wantedWidth;
                         can.height = wantedHeight;
                         ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
@@ -244,11 +245,10 @@ function getSmallImage(forSave, wantedWidth, wantedHeight) {
 
 function getSmallImageOuterService(forSave, wantedWidth, wantedHeight) {
     return new Promise( function(resolve, reject) {
-        $('body').append('<canvas id="resizedCanvas" style="display: none"></canvas>');
+        var url = 'https://images.weserv.nl/?url=' + forSave.imgSrc + '&w=' + wantedWidth + '&h=' + wantedHeight + '&w=80&h=80&t=fit';
+        //var url = 'https://images.weserv.nl/?url=' + forSave.imgSrc + '&w=' + wantedWidth + '&h=' + wantedHeight + '&t=square&a=bottom';
+
         var oReq = new XMLHttpRequest();
-
-        var url = 'https://images.weserv.nl/?url=' + forSave.imgSrc + '&w=' + wantedWidth + '&h=' + wantedHeight + '&t=square&a=bottom';
-
         oReq.open("GET", url, true);
         oReq.responseType = "arraybuffer";
         oReq.onload = function(oEvent) {
@@ -351,59 +351,67 @@ function base64ArrayBuffer(arrayBuffer) {
         base64 += encodings[a] + encodings[b] + encodings[c] + '='
     }
 
-    return base64
+    return base64;
 }
 
-function removeBlanks (context, canvas, imgWidth, imgHeight) {
-    var imageData = context.getImageData(0, 0, canvas.width, canvas.height),
-        data = imageData.data,
-        getRBG = function(x, y) {
-            return {
-                red:   data[(imgWidth*y + x) * 4],
-                green: data[(imgWidth*y + x) * 4 + 1],
-                blue:  data[(imgWidth*y + x) * 4 + 2]
-            };
-        },
-        isWhite = function (rgb) {
-            return rgb.red == 255 && rgb.green == 255 && rgb.blue == 255;
-        },
-        scanY = function (fromTop) {
-            var offset = fromTop ? 1 : -1;
 
-            // loop through each row
-            for(var y = fromTop ? 0 : imgHeight - 1; fromTop ? (y < imgHeight) : (y > -1); y += offset) {
+function div(val, by){
+    return {
+        result: (val - val % by) / by,
+        remain: val % by
+    }
+}
 
-                // loop through each column
-                for(var x = 0; x < imgWidth; x++) {
-                    if (!isWhite(getRBG(x, y))) {
-                        return y;
-                    }
-                }
-            }
-            return null; // all image is white
-        },
-        scanX = function (fromLeft) {
-            var offset = fromLeft? 1 : -1;
-
-            // loop through each column
-            for(var x = fromLeft ? 0 : imgWidth - 1; fromLeft ? (x < imgWidth) : (x > -1); x += offset) {
-
-                // loop through each row
-                for(var y = 0; y < imgHeight; y++) {
-                    if (!isWhite(getRBG(x, y))) {
-                        return x;
-                    }
-                }
-            }
-            return null; // all image is white
-        };
-
-    var crops = {
-        cropTop: scanY(true),
-        cropBottom: scanY(false),
-        cropLeft: scanX(true),
-        cropRight: scanX(false)
-    };
+//function getImageCoordsNoBlanks (context, canvas, imgWidth, imgHeight) {
+//    var imageData = context.getImageData(0, 0, canvas.width, canvas.height),
+//        data = imageData.data,
+//        getRBG = function(x, y) {
+//            return {
+//                red:   data[(imgWidth*y + x) * 4],
+//                green: data[(imgWidth*y + x) * 4 + 1],
+//                blue:  data[(imgWidth*y + x) * 4 + 2]
+//            };
+//        },
+//        isWhite = function (rgb) {
+//            return rgb.red == 255 && rgb.green == 255 && rgb.blue == 255;
+//        },
+//        scanY = function (fromTop) {
+//            var offset = fromTop ? 1 : -1;
+//
+//            // loop through each row
+//            for(var y = fromTop ? 0 : imgHeight - 1; fromTop ? (y < imgHeight) : (y > -1); y += offset) {
+//
+//                // loop through each column
+//                for(var x = 0; x < imgWidth; x++) {
+//                    if (!isWhite(getRBG(x, y))) {
+//                        return y;
+//                    }
+//                }
+//            }
+//            return null; // all image is white
+//        },
+//        scanX = function (fromLeft) {
+//            var offset = fromLeft? 1 : -1;
+//
+//            // loop through each column
+//            for(var x = fromLeft ? 0 : imgWidth - 1; fromLeft ? (x < imgWidth) : (x > -1); x += offset) {
+//
+//                // loop through each row
+//                for(var y = 0; y < imgHeight; y++) {
+//                    if (!isWhite(getRBG(x, y))) {
+//                        return x;
+//                    }
+//                }
+//            }
+//            return null; // all image is white
+//        };
+//
+//    return {
+//        cropTop: scanY(true),
+//        cropBottom: scanY(false),
+//        cropLeft: scanX(true),
+//        cropRight: scanX(false)
+//    };
 
     //var cropWidth = crops.cropRight - crops.cropLeft;
     //var cropHeight = crops.cropBottom - crops.cropTop;
@@ -433,11 +441,4 @@ function removeBlanks (context, canvas, imgWidth, imgHeight) {
     // cropBottom is the last bottommost white row. Below this row all is white
     // cropLeft is the last leftmost white column.
     // cropRight is the last rightmost white column.
-};
-
-function div(val, by){
-    return {
-        result: (val - val % by) / by,
-        remain: val % by
-    }
-}
+//};
