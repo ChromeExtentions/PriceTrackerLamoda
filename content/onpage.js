@@ -125,14 +125,8 @@ function bindClickEventListener() {
                 sendProductInfo(forSave);
             },
             function() {
-                getSmallImage(forSave, 80, 80).then(
-                    function() {
-                        sendProductInfo(forSave);
-                    },
-                    function() {
-                        forSave.imgBase64 = getLogoBase64();
-                        sendProductInfo(forSave);
-                    });
+                forSave.imgBase64 = getLogoBase64();
+                sendProductInfo(forSave);
             }
         );
 
@@ -360,86 +354,86 @@ function base64ArrayBuffer(arrayBuffer) {
     return base64
 }
 
-//function removeBlanks (context, canvas, imgWidth, imgHeight) {
-//    var imageData = context.getImageData(0, 0, canvas.width, canvas.height),
-//        data = imageData.data,
-//        getRBG = function(x, y) {
-//            return {
-//                red:   data[(imgWidth*y + x) * 4],
-//                green: data[(imgWidth*y + x) * 4 + 1],
-//                blue:  data[(imgWidth*y + x) * 4 + 2]
-//            };
-//        },
-//        isWhite = function (rgb) {
-//            return rgb.red == 255 && rgb.green == 255 && rgb.blue == 255;
-//        },
-//        scanY = function (fromTop) {
-//            var offset = fromTop ? 1 : -1;
-//
-//            // loop through each row
-//            for(var y = fromTop ? 0 : imgHeight - 1; fromTop ? (y < imgHeight) : (y > -1); y += offset) {
-//
-//                // loop through each column
-//                for(var x = 0; x < imgWidth; x++) {
-//                    if (!isWhite(getRBG(x, y))) {
-//                        return y;
-//                    }
-//                }
-//            }
-//            return null; // all image is white
-//        },
-//        scanX = function (fromLeft) {
-//            var offset = fromLeft? 1 : -1;
-//
-//            // loop through each column
-//            for(var x = fromLeft ? 0 : imgWidth - 1; fromLeft ? (x < imgWidth) : (x > -1); x += offset) {
-//
-//                // loop through each row
-//                for(var y = 0; y < imgHeight; y++) {
-//                    if (!isWhite(getRBG(x, y))) {
-//                        return x;
-//                    }
-//                }
-//            }
-//            return null; // all image is white
-//        };
-//
-//    var crops = {
-//        cropTop: scanY(true),
-//        cropBottom: scanY(false),
-//        cropLeft: scanX(true),
-//        cropRight: scanX(false)
-//    };
-//
-//    var cropWidth = crops.cropRight - crops.cropLeft;
-//    var cropHeight = crops.cropBottom - crops.cropTop;
-//
-//    var spaceToAdd = cropWidth - cropHeight;
-//    if(spaceToAdd == 0) {
-//        return;
-//    }
-//
-//    var newImageData = [];
-//
-//    // Надо добавить по ширине
-//    if(spaceToAdd > 0) {
-//        var spaceCount = div(spaceToAdd, 2);
-//        if(spaceCount.remain > 0) {
-//            var
-//        }
-//            var x = 0
-//        for(var x=0; x<(cropWidth + spaceToAdd); x++) {
-//            if(x == 0 && spaceCount.remain) {
-//                data[(imgWidth*y + x) * 4]
-//            }
-//        }
-//    }
-//
-//    // cropTop is the last topmost white row. Above this row all is white
-//    // cropBottom is the last bottommost white row. Below this row all is white
-//    // cropLeft is the last leftmost white column.
-//    // cropRight is the last rightmost white column.
-//};
+function removeBlanks (context, canvas, imgWidth, imgHeight) {
+    var imageData = context.getImageData(0, 0, canvas.width, canvas.height),
+        data = imageData.data,
+        getRBG = function(x, y) {
+            return {
+                red:   data[(imgWidth*y + x) * 4],
+                green: data[(imgWidth*y + x) * 4 + 1],
+                blue:  data[(imgWidth*y + x) * 4 + 2]
+            };
+        },
+        isWhite = function (rgb) {
+            return rgb.red == 255 && rgb.green == 255 && rgb.blue == 255;
+        },
+        scanY = function (fromTop) {
+            var offset = fromTop ? 1 : -1;
+
+            // loop through each row
+            for(var y = fromTop ? 0 : imgHeight - 1; fromTop ? (y < imgHeight) : (y > -1); y += offset) {
+
+                // loop through each column
+                for(var x = 0; x < imgWidth; x++) {
+                    if (!isWhite(getRBG(x, y))) {
+                        return y;
+                    }
+                }
+            }
+            return null; // all image is white
+        },
+        scanX = function (fromLeft) {
+            var offset = fromLeft? 1 : -1;
+
+            // loop through each column
+            for(var x = fromLeft ? 0 : imgWidth - 1; fromLeft ? (x < imgWidth) : (x > -1); x += offset) {
+
+                // loop through each row
+                for(var y = 0; y < imgHeight; y++) {
+                    if (!isWhite(getRBG(x, y))) {
+                        return x;
+                    }
+                }
+            }
+            return null; // all image is white
+        };
+
+    var crops = {
+        cropTop: scanY(true),
+        cropBottom: scanY(false),
+        cropLeft: scanX(true),
+        cropRight: scanX(false)
+    };
+
+    //var cropWidth = crops.cropRight - crops.cropLeft;
+    //var cropHeight = crops.cropBottom - crops.cropTop;
+    //
+    //var spaceToAdd = cropWidth - cropHeight;
+    //if(spaceToAdd == 0) {
+    //    return;
+    //}
+    //
+    //var newImageData = [];
+    //
+    //// Надо добавить по ширине
+    //if(spaceToAdd > 0) {
+    //    var spaceCount = div(spaceToAdd, 2);
+    //    if(spaceCount.remain > 0) {
+    //        var
+    //    }
+    //        var x = 0
+    //    for(var x=0; x<(cropWidth + spaceToAdd); x++) {
+    //        if(x == 0 && spaceCount.remain) {
+    //            data[(imgWidth*y + x) * 4]
+    //        }
+    //    }
+    //}
+
+    // cropTop is the last topmost white row. Above this row all is white
+    // cropBottom is the last bottommost white row. Below this row all is white
+    // cropLeft is the last leftmost white column.
+    // cropRight is the last rightmost white column.
+};
 
 function div(val, by){
     return {
