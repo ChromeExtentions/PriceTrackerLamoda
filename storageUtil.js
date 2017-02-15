@@ -12,7 +12,7 @@ function addProduct(request, sendResponseCallback) {
 
         var productCount = sizeOf(productList);
         if(productCount >= settings.maxProductCount) {
-            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.productLimitReached, window.settings.GA.labels.productLimitReached);
+            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.productLimitReached, request.url);
             sendResponseCallback( { result: "Лимит отслеживаемых товаров исчерпан" } );
             return;
         }
@@ -58,7 +58,7 @@ function addProduct(request, sendResponseCallback) {
                         sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
                     }
                     else {
-                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.trackProduct, window.settings.GA.labels.trackProduct);
+                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.trackProduct, request.url);
                         sendResponseCallback( {result: "Товар добавлен к отслеживанию"} );
                     }
                 });
@@ -90,6 +90,9 @@ function removeProduct(id, renderCallback) {
             productData.productList = {};
             productData.productPrices = {};
         }
+
+        var url = productData.productList[id].url;
+
         delete productData.productList[id];
         delete productData.productPrices[id];
 
@@ -99,7 +102,7 @@ function removeProduct(id, renderCallback) {
                 renderCallback(productTable);
             }
             if(typeof chrome.runtime.lastError == 'undefined') {
-                ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.removeProduct, window.settings.GA.labels.removeProduct);
+                ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.removeProduct, url);
             }
         });
     });
@@ -238,7 +241,7 @@ function promise_updatePricesFromSite(updateList) {
                 productPrices = {};
             }
 
-            var removeProductCount = 0;
+            var removeProductUrls = [];
 
             // changes - набор данныех для отображения уведомлений
             var changes = [];
@@ -280,9 +283,11 @@ function promise_updatePricesFromSite(updateList) {
                                     oldPrice: null,
                                     newPrice: null
                                 };
+                                var url1 = productList[code].url;
                                 delete productList[code];
                                 delete productPrices[code];
-                                removeProductCount++;
+
+                                removeProductUrls.push(url1);
                             }
                         }
                     }
@@ -297,9 +302,11 @@ function promise_updatePricesFromSite(updateList) {
                                 oldPrice: null,
                                 newPrice: null
                             };
+                            var url2 = productList[code].url;
                             delete productList[code];
                             delete productPrices[code];
-                            removeProductCount++;
+
+                            removeProductUrls.push(url2);
                         }
                     }
                 }
@@ -310,9 +317,11 @@ function promise_updatePricesFromSite(updateList) {
                         oldPrice: null,
                         newPrice: null
                     };
+                    var url3 = productList[code].url;
                     delete productList[code];
                     delete productPrices[code];
-                    removeProductCount++;
+
+                    removeProductUrls.push(url3);
                 }
                 else if(newPrice == -1) {
                     // Прочие временные ошибки при получении цены -  ничего не делаем
@@ -352,9 +361,11 @@ function promise_updatePricesFromSite(updateList) {
             productData.productPrices = productPrices;
             chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices },
                 function() {
-                    if(removeProductCount > 0 && typeof chrome.runtime.lastError == 'undefined') {
-                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.removeProductAuto, window.settings.GA.labels.removeProductAuto);
-                        removeProductCount = 0;
+                    if(removeProductUrls.length > 0 && typeof chrome.runtime.lastError == 'undefined') {
+                        for(var j=0; j<removeProductUrls.length; j++) {
+                            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.removeProductAuto, removeProductUrls[j]);
+                        }
+                        removeProductUrls = [];
                     }
                     resolve(changes); // RESOLVE //
                 });

@@ -141,7 +141,7 @@ function sendProductInfo(forSave) {
 }
 
 function addButtonMessage() {
-    chrome.runtime.sendMessage( { showTrackButton: true } , function() {});
+    chrome.runtime.sendMessage( { showTrackButton: true, url: document.URL } , function() {});
 }
 
 //===== PRODUCTION =====
