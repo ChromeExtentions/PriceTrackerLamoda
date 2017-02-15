@@ -98,6 +98,9 @@ function removeProduct(id, renderCallback) {
             if(!isEmpty(renderCallback)) {
                 renderCallback(productTable);
             }
+            if(typeof chrome.runtime.lastError == 'undefined') {
+                ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.removeProduct, window.settings.GA.labels.removeProduct);
+            }
         });
     });
 }
@@ -235,6 +238,8 @@ function promise_updatePricesFromSite(updateList) {
                 productPrices = {};
             }
 
+            var removeProductCount = 0;
+
             // changes - набор данныех для отображения уведомлений
             var changes = [];
             for(var i=0; i<updateList.length; i++) {
@@ -277,6 +282,7 @@ function promise_updatePricesFromSite(updateList) {
                                 };
                                 delete productList[code];
                                 delete productPrices[code];
+                                removeProductCount++;
                             }
                         }
                     }
@@ -293,6 +299,7 @@ function promise_updatePricesFromSite(updateList) {
                             };
                             delete productList[code];
                             delete productPrices[code];
+                            removeProductCount++;
                         }
                     }
                 }
@@ -305,6 +312,7 @@ function promise_updatePricesFromSite(updateList) {
                     };
                     delete productList[code];
                     delete productPrices[code];
+                    removeProductCount++;
                 }
                 else if(newPrice == -1) {
                     // Прочие временные ошибки при получении цены -  ничего не делаем
@@ -344,6 +352,10 @@ function promise_updatePricesFromSite(updateList) {
             productData.productPrices = productPrices;
             chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices },
                 function() {
+                    if(removeProductCount > 0 && typeof chrome.runtime.lastError == 'undefined') {
+                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.removeProductAuto, window.settings.GA.labels.removeProductAuto);
+                        removeProductCount = 0;
+                    }
                     resolve(changes); // RESOLVE //
                 });
         });

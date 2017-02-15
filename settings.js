@@ -27,7 +27,9 @@ function applyEmbeddedSettings() {
                 trackProduct: 'trackProduct',
             productLimitReached: 'productLimitReached',
             notificationFired: 'notificationFired',
-            notificationClick: 'notificationClick'
+            notificationClick: 'notificationClick',
+            removeProduct: 'removeProduct',
+            removeProductAuto: 'removeProductAuto'
         },
         labels:
         {
@@ -35,8 +37,10 @@ function applyEmbeddedSettings() {
                 trackProduct: 'Label_trackProduct',
             productLimitReached: 'Label_productLimitReached',
             notificationFired: 'Label_notificationFired',
-            notificationClick: 'Label_notificationClick'
-        },
+            notificationClick: 'Label_notificationClick',
+            removeProduct: 'Label_removeProduct',
+            removeProductAuto: 'Label_removeProductAuto'
+        }
     },
      testApp: false
  };
@@ -56,31 +60,34 @@ function applyEmbeddedSettings() {
     //    maxProductCount: 6,
     //    maxProductCountUpdatePerTime: 3,
     //    maxNotificationCount: 10,
-    //    GA: {
-    //        ID: 'UA-91379404-02',
+    //GA: {
+    //    ID: 'UA-91379404-02',
     //        tracker: 'MyTracker',
     //        catetories:
-    //        {
-    //            main: 'chromeExtension'
-    //        },
-    //        actions:
-    //        {
-    //            showTrackButton: 'showTrackButton',
-    //            trackProduct: 'trackProduct',
-    //            productLimitReached: 'productLimitReached',
-    //            notificationFired: 'notificationFired',
-    //            notificationClick: 'notificationClick'
-    //        },
-    //        labels:
-    //        {
-    //            showTrackButton: 'Label_showTrackButton',
-    //            trackProduct: 'Label_trackProduct',
-    //            productLimitReached: 'Label_productLimitReached',
-    //            notificationFired: 'Label_notificationFired',
-    //            notificationClick: 'Label_notificationClick'
-    //        },
+    //    {
+    //        main: 'chromeExtension'
     //    },
-    //    testApp: true,
+    //    actions:
+    //    {
+    //        showTrackButton: 'showTrackButton',
+    //            trackProduct: 'trackProduct',
+    //        productLimitReached: 'productLimitReached',
+    //        notificationFired: 'notificationFired',
+    //        notificationClick: 'notificationClick',
+    //        removeProduct: 'removeProduct',
+    //        removeProductAuto: 'removeProductAuto'
+    //    },
+    //    labels:
+    //    {
+    //        showTrackButton: 'Label_showTrackButton',
+    //            trackProduct: 'Label_trackProduct',
+    //        productLimitReached: 'Label_productLimitReached',
+    //        notificationFired: 'Label_notificationFired',
+    //        notificationClick: 'Label_notificationClick',
+    //        removeProduct: 'Label_removeProduct',
+    //        removeProductAuto: 'Label_removeProductAuto'
+    //    }
+    //},
     //    pathToTestProducts: 'file:///C:/projects/PriceTrackerLamoda/'
     //};
 }
