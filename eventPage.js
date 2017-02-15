@@ -80,7 +80,7 @@ function onMessageListener(request, sender, sendResponse) {
         return true; // Чтобы получатель ждал ответа
     }
     if(request.hasOwnProperty('showTrackButton')) {
-        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.showTrackButton, request.url );
+        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.showTrackButton, request.url, request.url );
         return;
     }
 
@@ -146,7 +146,7 @@ function fireSingleNotification(change) {
             function callback(createdId) {
 
                 // Событие оповещения для Google analytics
-                 ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.notificationFired, change.url);
+                ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.notificationFired, change.url, change.url );
 
                 var handler = function(id) {
                     if(id == createdId) {
@@ -155,7 +155,7 @@ function fireSingleNotification(change) {
                         chrome.notifications.onClicked.removeListener(handler);
 
                         // Событие перехода по оповещению для Google analytics
-                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.notificationClick, change.url);
+                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.notificationClick, change.url, change.url );
                     }
                 };
                 chrome.notifications.onClicked.addListener(handler);

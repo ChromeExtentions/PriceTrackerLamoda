@@ -12,7 +12,7 @@ function addProduct(request, sendResponseCallback) {
 
         var productCount = sizeOf(productList);
         if(productCount >= settings.maxProductCount) {
-            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.productLimitReached, request.url);
+            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.productLimitReached, request.url, request.url );
             sendResponseCallback( { result: "Лимит отслеживаемых товаров исчерпан" } );
             return;
         }
@@ -58,7 +58,7 @@ function addProduct(request, sendResponseCallback) {
                         sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
                     }
                     else {
-                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.trackProduct, request.url);
+                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.trackProduct, request.url, request.url );
                         sendResponseCallback( {result: "Товар добавлен к отслеживанию"} );
                     }
                 });
@@ -102,7 +102,7 @@ function removeProduct(id, renderCallback) {
                 renderCallback(productTable);
             }
             if(typeof chrome.runtime.lastError == 'undefined') {
-                ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.removeProduct, url);
+                ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.removeProduct, url, url );
             }
         });
     });
@@ -363,7 +363,7 @@ function promise_updatePricesFromSite(updateList) {
                 function() {
                     if(removeProductUrls.length > 0 && typeof chrome.runtime.lastError == 'undefined') {
                         for(var j=0; j<removeProductUrls.length; j++) {
-                            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.catetories.main, window.settings.GA.actions.removeProductAuto, removeProductUrls[j]);
+                            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.removeProductAuto, removeProductUrls[j], removeProductUrls[j] );
                         }
                         removeProductUrls = [];
                     }

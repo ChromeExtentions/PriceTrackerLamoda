@@ -60,6 +60,7 @@ function applyEmbeddedSettings() {
     //    maxProductCount: 6,
     //    maxProductCountUpdatePerTime: 3,
     //    maxNotificationCount: 10,
+    //    testApp: true,
     //GA: {
     //    ID: 'UA-91379404-02',
     //        tracker: 'MyTracker',
@@ -89,5 +90,5 @@ function applyEmbeddedSettings() {
     //    }
     //},
     //    pathToTestProducts: 'file:///C:/projects/PriceTrackerLamoda/'
-    //};
+    //}
 }

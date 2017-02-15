@@ -126,7 +126,7 @@ var formatDate = function (date) {
     hours = hours ? hours : 12; // the hour '0' should be '12'
     minutes = minutes < 10 ? '0'+minutes : minutes;
     var strTime = hours + ':' + minutes + ' ' + ampm;
-    return date.getDate()+1 + "." + monthNames[date.getMonth()] + "." + date.getFullYear() + "  " + strTime;
+    return date.getDate() + "." + monthNames[date.getMonth()] + "." + date.getFullYear() + "  " + strTime;
 };
 
 var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
