@@ -80,7 +80,12 @@ function onMessageListener(request, sender, sendResponse) {
         return true; // Чтобы получатель ждал ответа
     }
     if(request.hasOwnProperty('showTrackButton')) {
-        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.showTrackButton, request.url, request.url );
+        if(request.hasProduct === true) {
+            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.showTrackButtonHasProduct, request.url );
+        }
+        else {
+            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.showTrackButton, request.url );
+        }
         return;
     }
 
@@ -146,7 +151,7 @@ function fireSingleNotification(change) {
             function callback(createdId) {
 
                 // Событие оповещения для Google analytics
-                ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.notificationFired, change.url, change.url );
+                ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.notificationFired, change.url );
 
                 var handler = function(id) {
                     if(id == createdId) {
@@ -155,7 +160,7 @@ function fireSingleNotification(change) {
                         chrome.notifications.onClicked.removeListener(handler);
 
                         // Событие перехода по оповещению для Google analytics
-                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.notificationClick, change.url, change.url );
+                        ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.notificationClick, change.url );
                     }
                 };
                 chrome.notifications.onClicked.addListener(handler);

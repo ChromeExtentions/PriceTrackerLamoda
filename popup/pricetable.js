@@ -59,7 +59,7 @@ var renderProductTable = function(productTable, itemTemplate) {
         var utm = productTable[i].utm;
         var oldPrice = productTable[i].oldPrice;
         var newPrice = productTable[i].newPrice;
-        var startPrice = productTable[i].startPrice;
+        var startPrice = isEmpty(productTable[i].startPrice) ? 0 : productTable[i].startPrice;
 
         if(oldPrice == null) {
             if(newPrice != null) {

@@ -67,8 +67,8 @@ $( function() {
 });
 
 function addTrackButton(hasProduct) {
-    var TRACK_BUTTON_HEIGHT = 80;
-    var lamodaConsultantContainer = $('#cleversite_clever_container');
+    // var TRACK_BUTTON_HEIGHT = 80;
+    // var lamodaConsultantContainer = $('#cleversite_clever_container');
     var buttonPath = chrome.extension.getURL("content/trackButton.html");
     $.get(buttonPath, function(data){
 
@@ -77,36 +77,48 @@ function addTrackButton(hasProduct) {
 
         if(hasProduct === true) {
             $(templateHtml).find('#trackProductLabelTd').text('Товар добавлен к отслеживанию');
-        };
-
-        if( (typeof lamodaConsultantContainer != 'undefined' &&  $(lamodaConsultantContainer).find('div').length > 0)) {
-            var lamodaConsultantPosition = lamodaConsultantContainer.position();
-            var topButtonCoord = lamodaConsultantPosition.top - TRACK_BUTTON_HEIGHT;
-
-            // Хак чтоб не глючило положение кнопки по вертикали
-            console.log(isEmpty(lamodaConsultantPosition) ? lamodaConsultantPosition.top : '');
-
-            $(templateHtml).css("top", topButtonCoord);
-            //$(templateHtml).drags();
-            $('body').append(templateHtml);
-            if(hasProduct !== true) { bindClickEventListener() };
-            addButtonMessage();
         }
-        else if(window.maxConsultantAttachAttempts == 0) {
-        // Если отсутствует кнопка консультант
-            $(templateHtml).css("top", 160);
-            //$(templateHtml).drags();
-            $('body').append(templateHtml);
-            if(hasProduct !== true) { bindClickEventListener() };
+
+        $(templateHtml).css("top", 160);
+        //$(templateHtml).drags();
+        $('body').append(templateHtml);
+        if(hasProduct !== true) {
+            bindClickEventListener()
             addButtonMessage();
         }
         else {
-            // Раз в секунду пытаемся прицепить кнопку к консультанту
-            window.maxConsultantAttachAttempts--;
-            setTimeout( function() {
-                addTrackButton(hasProduct);
-            }, 1000);
+            addButtonHasProductMessage();
         }
+
+        //-- Старый функционал добавления кнопки - попытка прикрепления к консультанту
+        // if( (typeof lamodaConsultantContainer != 'undefined' &&  $(lamodaConsultantContainer).find('div').length > 0)) {
+        //     var lamodaConsultantPosition = lamodaConsultantContainer.position();
+        //     var topButtonCoord = lamodaConsultantPosition.top - TRACK_BUTTON_HEIGHT;
+        //
+        //     // Хак чтоб не глючило положение кнопки по вертикали
+        //     console.log(isEmpty(lamodaConsultantPosition) ? lamodaConsultantPosition.top : '');
+        //
+        //     $(templateHtml).css("top", topButtonCoord);
+        //     //$(templateHtml).drags();
+        //     $('body').append(templateHtml);
+        //     if(hasProduct !== true) { bindClickEventListener() };
+        //     addButtonMessage();
+        // }
+        // else if(window.maxConsultantAttachAttempts == 0) {
+        // // Если отсутствует кнопка консультант
+        //     $(templateHtml).css("top", 160);
+        //     //$(templateHtml).drags();
+        //     $('body').append(templateHtml);
+        //     if(hasProduct !== true) { bindClickEventListener() };
+        //     addButtonMessage();
+        // }
+        // else {
+        //     // Раз в секунду пытаемся прицепить кнопку к консультанту
+        //     window.maxConsultantAttachAttempts--;
+        //     setTimeout( function() {
+        //         addTrackButton(hasProduct);
+        //     }, 1000);
+        // }
     });
 }
 
@@ -120,7 +132,7 @@ function bindClickEventListener() {
     $('#trackButtonBody').click(function(e) {
         var forSave = getProductData();
 
-        getSmallImageOuterService(forSave, 80, 80).then( // 80x80 изображение, которое будет отображаться в уведомлении и в списке товаров
+        getSmallImage(forSave, 80, 80).then( // 80x80 изображение, которое будет отображаться в уведомлении и в списке товаров
             function() {
                 sendProductInfo(forSave);
             },
@@ -141,7 +153,11 @@ function sendProductInfo(forSave) {
 }
 
 function addButtonMessage() {
-    chrome.runtime.sendMessage( { showTrackButton: true, url: document.URL } , function() {});
+    chrome.runtime.sendMessage( { showTrackButton: true, hasProduct: false, url: document.URL } , function() {});
+}
+
+function addButtonHasProductMessage() {
+    chrome.runtime.sendMessage( { showTrackButton: true, hasProduct: true, url: document.URL } , function() {});
 }
 
 //===== PRODUCTION =====
@@ -201,7 +217,9 @@ function getSmallImage(forSave, wantedWidth, wantedHeight) {
         return new Promise( function(resolve, reject) {
             $('body').append('<canvas id="resizedCanvas" style="display: none"></canvas>');
             var oReq = new XMLHttpRequest();
-            oReq.open("GET", forSave.imgSrc, true);
+
+            var url = 'https://images.weserv.nl/?url=' + forSave.imgSrc + '&w=' + wantedWidth + '&h=' + wantedHeight + '&t=fit';
+            oReq.open("GET", url, true);
             oReq.responseType = "arraybuffer";
             oReq.onload = function(oEvent) {
 
@@ -212,13 +230,17 @@ function getSmallImage(forSave, wantedWidth, wantedHeight) {
                     img.crossOrigin = 'Anonymous';
                     img.onload = function() {
                         var can = document.getElementById('resizedCanvas');
+                        can.width  = 80;
+                        can.height = 80;
                         var ctx = can.getContext('2d');
-                        ctx.drawImage(img, 0, 0);
-                        ctx = can.getContext('2d');
+                        ctx.fillStyle="#FFFFFF";
+                        ctx.fillRect(0,0,80,80);
 
-                        can.width = wantedWidth;
-                        can.height = wantedHeight;
-                        ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
+                        var width = img.width;
+                        var height = img.height;
+                        var leftCoord = (80 - width)/2;
+                        ctx.drawImage(img, leftCoord, 0, width, height);
+
                         forSave.imgBase64 = can.toDataURL();
 
                         //------ Send product data to extention ---------
@@ -245,7 +267,7 @@ function getSmallImage(forSave, wantedWidth, wantedHeight) {
 
 function getSmallImageOuterService(forSave, wantedWidth, wantedHeight) {
     return new Promise( function(resolve, reject) {
-        var url = 'https://images.weserv.nl/?url=' + forSave.imgSrc + '&w=' + wantedWidth + '&h=' + wantedHeight + '&w=80&h=80&t=fit';
+        var url = 'https://images.weserv.nl/?url=' + forSave.imgSrc + '&w=' + wantedWidth + '&h=' + wantedHeight + '&t=fit';
         //var url = 'https://images.weserv.nl/?url=' + forSave.imgSrc + '&w=' + wantedWidth + '&h=' + wantedHeight + '&t=square&a=bottom';
 
         var oReq = new XMLHttpRequest();
