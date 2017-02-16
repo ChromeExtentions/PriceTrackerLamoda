@@ -2,7 +2,7 @@
 function applyEmbeddedSettings() {
 
     //======================== Для тестов менять только тут ========================
-    var testApplication = false;
+    var testApplication = true;
     //==============================================================================
 
 
@@ -32,6 +32,7 @@ function applyEmbeddedSettings() {
                     showTrackButtonHasProduct: 'showTrackButtonHasProduct',
                     trackProduct: 'trackProduct',
                     productLimitReached: 'productLimitReached',
+                    tableProductClick: 'tableProductClick',
                     notificationFired: 'notificationFired',
                     notificationClick: 'notificationClick',
                     removeProduct: 'removeProduct',
@@ -42,6 +43,7 @@ function applyEmbeddedSettings() {
                     showTrackButtonHasProduct: 'Label_showTrackButtonHasProduct',
                     trackProduct: 'Label_trackProduct',
                     productLimitReached: 'Label_productLimitReached',
+                    tableProductClick: 'Label_tableProductClick',
                     notificationFired: 'Label_notificationFired',
                     notificationClick: 'Label_notificationClick',
                     removeProduct: 'Label_removeProduct',
@@ -77,6 +79,7 @@ function applyEmbeddedSettings() {
                     showTrackButtonHasProduct: 'showTrackButtonHasProduct',
                     trackProduct: 'trackProduct',
                     productLimitReached: 'productLimitReached',
+                    tableProductClick: 'tableProductClick',
                     notificationFired: 'notificationFired',
                     notificationClick: 'notificationClick',
                     removeProduct: 'removeProduct',
@@ -87,6 +90,7 @@ function applyEmbeddedSettings() {
                     showTrackButtonHasProduct: 'Label_showTrackButtonHasProduct',
                     trackProduct: 'Label_trackProduct',
                     productLimitReached: 'Label_productLimitReached',
+                    tableProductClick: 'Label_tableProductClick',
                     notificationFired: 'Label_notificationFired',
                     notificationClick: 'Label_notificationClick',
                     removeProduct: 'Label_removeProduct',

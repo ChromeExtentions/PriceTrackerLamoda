@@ -52,8 +52,8 @@ var renderProductTable = function(productTable, itemTemplate) {
 
         $(rowId).val(productTable[i].code);
         $(labelName).text(productTable[i].name);
-        $(aLink).attr('href', url);
-        $(aLink2).attr('href', url);
+        $(aLink).attr('data-url', url);
+        $(aLink2).attr('data-url', url);
         $(productImg).attr('src', productTable[i].imgBase64);
 
         var utm = productTable[i].utm;
@@ -108,10 +108,22 @@ var renderProductTable = function(productTable, itemTemplate) {
     }
 
     var clickableRows = $('tr.clickable-row');
-    for(var k=0; k<removeButtons.length; k++) {
+    for(var k=0; k<clickableRows.length; k++) {
         $(clickableRows[k]).click(function(e) {
             e.preventDefault();
             var url = $(this).attr('data-url');
+            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.tableProductClick, url );
+            window.open(url + utm, '_blank');
+            window.focus();
+        });
+    }
+
+    var clickableLinks = $('a.productLink');
+    for(var m=0; m<clickableLinks.length; m++) {
+        $(clickableLinks[m]).click(function(e) {
+            e.preventDefault();
+            var url = $(this).attr('data-url');
+            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.tableProductClick, url );
             window.open(url + utm, '_blank');
             window.focus();
         });

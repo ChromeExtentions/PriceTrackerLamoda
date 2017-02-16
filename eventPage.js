@@ -142,7 +142,7 @@ function fireSingleNotification(change) {
     var versionNum = parseInt(version.substr(0, version.indexOf('.')));
 
     if(change.isSale === true) {
-        //chrome.browserAction.setIcon({path: icon});
+        //-- Установка бэджа на иконку расширения
         chrome.browserAction.setBadgeBackgroundColor( {color: '#088A08' });
         chrome.browserAction.setBadgeText({text:"Sale"});
     }
