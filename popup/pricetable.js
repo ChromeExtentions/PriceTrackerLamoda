@@ -48,7 +48,8 @@ var renderProductTable = function(productTable, itemTemplate) {
         var removeButton = itemHtml.find('button.removeProduct')[0];
         var rowId = itemHtml.find('.data-id')[0];
         var priceElementTableBody = itemHtml.find('.priceTableElementBody')[0];
-        var priceRow = itemHtml.find('tr.clickable-row')[0];
+        var priceRowStart = itemHtml.find('tr.clickable-row')[0];
+        var priceRowCurrent = itemHtml.find('tr.clickable-row')[1];
 
         $(rowId).val(productTable[i].code);
         $(labelName).text(productTable[i].name);
@@ -92,7 +93,8 @@ var renderProductTable = function(productTable, itemTemplate) {
 
         $(removeButton).attr("data-id", productTable[i].code);
         $(removeButton).attr("id", productTable[i].code);
-        $(priceRow).attr('data-url', productTable[i].url);
+        $(priceRowStart).attr('data-url', url);
+        $(priceRowCurrent).attr('data-url', url);
 
         $('#mainTableBody').append(itemHtml);
     }
