@@ -266,14 +266,14 @@ function promise_updatePricesFromSite(updateList) {
                         var currentDateInMillis = new Date().getTime();
 
                         // Если цена отсутствует меньше missingAfterDays, то ничего не делаем, ждем пока пройдет missingCheckPeriod
-                        if( (currentDateInMillis - lastUpdateInMillis) < (86400000 * settings.missingAfterDays) ) {  // 86 400 000 миллисекунд в сутках
+                        if( (currentDateInMillis - lastUpdateInMillis) < (24 * settings.missingAfterDays) ) {  // 86 400 000 миллисекунд в сутках
                             productList[code].nextUpdate =  newUpdateTime(settings.updateInterval).toString();
                             product.tryMissing = 0;
                         }
                         // Цена отсутствует более missingAfterDays, теперь считаем товар отсутствующим
                         else {
                             if(settings.trackIfMissing == true) {
-                                productList[code].nextUpdate =  newUpdateTime(86400000 * settings.missingCheckPeriod).toString();
+                                productList[code].nextUpdate =  newUpdateTime(24 * settings.missingCheckPeriod).toString();
                                 product.tryMissing = 0;
                             }
                             else {
@@ -292,7 +292,7 @@ function promise_updatePricesFromSite(updateList) {
                     }
                     // Товар уже считается отсутствующим
                     else if(Number.isInteger(product.tryMissing)) {
-                        productList[code].nextUpdate =  newUpdateTime(86400000 * settings.missingCheckPeriod).toString();
+                        productList[code].nextUpdate =  newUpdateTime(24 * settings.missingCheckPeriod).toString();
                         product.tryMissing++;
 
                         if(product.tryMissing >= settings.missingCheckTimes) {
