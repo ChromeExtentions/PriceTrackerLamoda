@@ -56,7 +56,6 @@ var renderProductTable = function(productTable, itemTemplate) {
         $(aLink2).attr('data-url', url);
         $(productImg).attr('src', productTable[i].imgBase64);
 
-        var utm = productTable[i].utm;
         var oldPrice = productTable[i].oldPrice;
         var newPrice = productTable[i].newPrice;
         var startPrice = isEmpty(productTable[i].startPrice) ? 0 : productTable[i].startPrice;
@@ -113,7 +112,7 @@ var renderProductTable = function(productTable, itemTemplate) {
             e.preventDefault();
             var url = $(this).attr('data-url');
             ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.tableProductClick, url );
-            window.open(url + utm, '_blank');
+            window.open(url, '_blank');
             window.focus();
         });
     }
@@ -124,7 +123,7 @@ var renderProductTable = function(productTable, itemTemplate) {
             e.preventDefault();
             var url = $(this).attr('data-url');
             ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.tableProductClick, url );
-            window.open(url + utm, '_blank');
+            window.open(url, '_blank');
             window.focus();
         });
     }
