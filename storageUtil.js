@@ -333,6 +333,7 @@ function promise_updatePricesFromSite(updateList) {
                     if(product.tryMissing === true || Number.isInteger(product.tryMissing)) {
                         product.tryMissing = null;
                     }
+                    product.lastUpdate = new Date().toString();
                     product.nextUpdate =  newUpdateTime(settings.updateInterval).toString();
                 }
 
