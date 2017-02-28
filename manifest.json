@@ -4,7 +4,7 @@
   "name": "laModa Price Tracker",
   "description": "...",
   "version": "1.0",
-  "default_locale": "en",
+  "default_locale": "ru",
 
   "icons": {
       "16": "img/la16.png",

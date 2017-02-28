@@ -13,7 +13,7 @@ function addProduct(request, sendResponseCallback) {
         var productCount = sizeOf(productList);
         if(productCount >= settings.maxProductCount) {
             ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.productLimitReached, request.urll );
-            sendResponseCallback( { result: "Лимит отслеживаемых товаров исчерпан" } );
+            sendResponseCallback( { result: chrome.i18n.getMessage("productLimitReached") } );
             return;
         }
         else {
@@ -30,7 +30,8 @@ function addProduct(request, sendResponseCallback) {
                 lastUpdate: new Date().toString(),
                 lastChangeDate: new Date().toString(),
                 tryMissing: null,
-                startPrice: request.price
+                startPrice: request.price,
+                startPriceDate: new Date().toString()
             };
 
             var id = product.code;
@@ -55,11 +56,11 @@ function addProduct(request, sendResponseCallback) {
             chrome.storage.local.set( { productList : productData.productList, productPrices: productData.productPrices },
                 function(result) {
                     if(typeof chrome.runtime.lastError != 'undefined') {
-                        sendResponseCallback( { result: "Произошла ошибка. Попробуйте еще раз." } );
+                        sendResponseCallback( { result: chrome.i18n.getMessage("unknownError") } );
                     }
                     else {
                         ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.trackProduct, request.url );
-                        sendResponseCallback( {result: "Товар добавлен к отслеживанию"} );
+                        sendResponseCallback( {result: chrome.i18n.getMessage("productHasBeenAdded") } );
                     }
                 });
         }
@@ -150,12 +151,13 @@ function loadProductTable(productData) {
                 imgBase64: value.imgBase64,
                 url: value.url,
                 startPrice: value.startPrice,
+                startPriceDate: value.startPriceDate,
                 oldPrice: oldPrice,
                 newPrice: newPrice,
                 lastChangeDate: value.lastChangeDate,
                 lastUpdateTime: value.lastUpdate,
                 nextUpdateTime: value.nextUpdate,
-                utm: getUtm()
+                utm: getUtm('ProductList')
             }
         );
 
@@ -232,7 +234,7 @@ function promise_updatePricesFromSite(updateList) {
 
             var productList = productData.productList;
             if(isEmpty(productList)) {
-                reject("Невозможно обнаружить данные о товарах в хранилище");
+                reject( chrome.i18n.getMessage("productStorageUnavailable") );
             }
 
             var productPrices = productData.productPrices;
@@ -344,11 +346,11 @@ function promise_updatePricesFromSite(updateList) {
                     // (случаи с отсутствием/появлением/снятием с наблюдения товара пока НЕ ОБРАБАТЫВАЕМ)
                     if( changeNotification.oldPrice != null && changeNotification.newPrice != null) {
                         changeNotification.imgBase64 = product.imgBase64;
-                        changeNotification.title = changeNotification.newPrice > changeNotification.oldPrice ? ' Повышение цены на laModa' : 'Скидка на laModa' ;
+                        changeNotification.title = changeNotification.newPrice > changeNotification.oldPrice ? chrome.i18n.getMessage("priceUp") : chrome.i18n.getMessage("priceDown") ;
                         changeNotification.isSale = changeNotification.newPrice < changeNotification.oldPrice;
                         changeNotification.message = (truncateWithEllipsis(product.name, 15) + ' теперь стоит ' + changeNotification.newPrice + ' рублей').replace(/\s+$/, '');;
                         changeNotification.url = product.url;
-                        changeNotification.utm = getUtm(product);
+                        changeNotification.utm = getUtm('Notification');
                         changes.push(changeNotification);
                     }
                 }
@@ -417,8 +419,8 @@ function updateProductPrices(productPrices, id, newPrice, maxPrices) {
 }
 
 //===================================== HELPERS ==============================================
-function getUtm(product) {
-    return '?utm_source=extention&utm_medium=media&utm_campaign=ProductList';
+function getUtm(campaign) {
+    return '?utm_source=extention&utm_medium=media&utm_campaign=' + campaign;
     //return '?utm_source=extention&utm_medium=media&utm_campaign=ProductList' + '{product_id=' + product.code +'}&utm_term{' + product.position + '}'
 }
 

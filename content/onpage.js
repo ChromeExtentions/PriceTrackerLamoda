@@ -76,7 +76,7 @@ function addTrackButton(hasProduct) {
         setLogoImagePath(templateHtml);
 
         if(hasProduct === true) {
-            $(templateHtml).find('#trackProductLabelTd').text('Товар добавлен к отслеживанию');
+            $(templateHtml).find('#trackProductLabelTd').text( chrome.i18n.getMessage("productHasBeenAdded") );
         }
 
         $(templateHtml).css("top", 160);
@@ -147,7 +147,7 @@ function bindClickEventListener() {
 
 function sendProductInfo(forSave) {
     chrome.runtime.sendMessage( forSave , function(response) {
-        var msg = isEmpty(response.result) ?  "Произошла ошибка. Попробуйте еще раз." : response.result;
+        var msg = isEmpty(response.result) ?  chrome.i18n.getMessage("unknownError") : response.result;
         $('#trackProductLabelTd').text(response.result);
     });
 }

@@ -81,7 +81,7 @@ function onMessageListener(request, sender, sendResponse) {
     }
     if(request.hasOwnProperty('showTrackButton')) {
         if(request.hasProduct === true) {
-            ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.showTrackButtonHasProduct, request.url );
+            // ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.showTrackButtonHasProduct, request.url );
         }
         else {
             ga(window.settings.GA.tracker + '.send', 'event', window.settings.GA.actions.showTrackButton, request.url );
@@ -93,7 +93,7 @@ function onMessageListener(request, sender, sendResponse) {
         addProduct(request, sendResponse);
     }
     catch(err) {
-        sendResponse( { result: "Произошла ошибка. Попробуйте еще раз." } );
+        sendResponse( { result: chrome.i18n.getMessage("unknownError") } );
         return;
     }
     return true; // Чтобы получатель ждал ответа

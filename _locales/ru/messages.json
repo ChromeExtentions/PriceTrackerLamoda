@@ -1,6 +1,32 @@
 {
-	"search_string": {
-	  "message": "привет%20мир",
-	  "description": "The string we search for. Put %20 between words that go together."
+	"productHasBeenAdded": {
+		"message": "Товар добавлен к отслеживанию",
+		"description": "Надпись на кнопке добавления товара на отслеживание"
+	},
+	"productLimitReached": {
+		"message": "Лимит отслеживаемых товаров исчерпан",
+		"description": "Сообщение о достижении максимального размера таблицы товаров"
+	},
+	"productStorageUnavailable": {
+		"message": "Невозможно обнаружить данные о товарах в хранилище",
+		"description": "Ошибка получения данных о товарах из хранилища"
+	},
+	"priceUp": {
+		"message": " Повышение цены на laModa",
+		"description": "Сообщение о повышении цены"
+	},
+	"priceDown": {
+		"message": "Скидка на laModa",
+		"description": "Сообщение о понижении цены"
+	},
+	"unknownError": {
+		"message": "Произошла ошибка. Попробуйте еще раз",
+		"description": "Сообщение о неизвестной ошибке"
+	},
+	"productIsMissing": {
+		"message": "Товар отсутствует",
+		"description": "Подпись в таблице товаров в случае отсутствия товара"
 	}
+
+
 }

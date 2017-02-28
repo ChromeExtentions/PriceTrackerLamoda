@@ -39,8 +39,12 @@ var renderProductTable = function(productTable, itemTemplate) {
 
         var itemHtml =  $( (' ' + itemTemplate).slice(1) );
         //var tdPriceOld = itemHtml.find('.productPriceOld')[0];
-        var tdPriceNew = itemHtml.find('.productPriceNew')[0];
-        var tdPriceStart = itemHtml.find('.productPriceStart')[0];
+
+        var tdPriceNew = itemHtml.find('span.productPriceNew')[0];
+        var tdPriceStart = itemHtml.find('span.productPriceStart')[0];
+        var tdPriceNewDate = itemHtml.find('span.productPriceNewDate')[0];
+        var tdPriceStartDate = itemHtml.find('span.productPriceStartDate')[0];
+
         var labelName = itemHtml.find('label.productName')[0];
         var aLink = itemHtml.find('.productLink')[0];
         var aLink2 = itemHtml.find('.productLink')[1];
@@ -60,25 +64,29 @@ var renderProductTable = function(productTable, itemTemplate) {
         var oldPrice = productTable[i].oldPrice;
         var newPrice = productTable[i].newPrice;
         var startPrice = isEmpty(productTable[i].startPrice) ? 0 : productTable[i].startPrice;
+        var startPriceDate = isEmpty(productTable[i].startPriceDate) ? 0 : formatDate( new Date(Date.parse(productTable[i].startPriceDate)));
+        var lastChangeDate = isEmpty(productTable[i].lastChangeDate) ? 0 : formatDate( new Date(Date.parse(productTable[i].lastChangeDate)));
 
         if(oldPrice == null) {
             if(newPrice != null) {
-                $(tdPriceNew).text("Текущая: " + newPrice + " руб.");
+                $(tdPriceNew).text('Текущая: ' + newPrice + ' руб.');
+                $(tdPriceNewDate).text('(' + lastChangeDate + ')');
             }
             else {
-                $(tdPriceNew).text("Товар отсутствует");
+                $(tdPriceNew).text( chrome.i18n.getMessage("productIsMissing") );
             }
         }
         else if(newPrice == null) {
             //var lastPriceText = 'Последняя цена - ' + oldPrice + ' руб.';
             //$(tdPriceOld).text("Товар отсутствует.\n" + lastPriceText);
-            $(tdPriceNew).text("Товар отсутствует");
+            $(tdPriceNew).text( chrome.i18n.getMessage("productIsMissing") );
         }
         else {
-            $(tdPriceNew).text("Текущая: " + newPrice + " руб.");
+            $(tdPriceNew).text('Текущая: ' + newPrice + ' руб.');
+            $(tdPriceNewDate).text('(' + lastChangeDate + ')');
         }
-
-        $(tdPriceStart).text('Начальная:' + startPrice + " руб.");
+        $(tdPriceStart).text('Начальная: ' + startPrice + ' руб.');
+        $(tdPriceStartDate).text('(' + startPriceDate + ')');
 
         applyEmbeddedSettings();
 
@@ -121,6 +129,9 @@ var renderProductTable = function(productTable, itemTemplate) {
 
     var clickableLinks = $('a.productLink');
     for(var m=0; m<clickableLinks.length; m++) {
+        //var clickString = 'ga("' + window.settings.GA.tracker + '.send"' + ', "event", "' + window.settings.GA.actions.tableProductClick + '", "' + url + '" )';
+        //$(clickableLinks[m]).attr('onclick', clickString);
+        $(clickableLinks[m]).attr('href', url);
         $(clickableLinks[m]).click(function(e) {
             e.preventDefault();
             var url = $(this).attr('data-url');
