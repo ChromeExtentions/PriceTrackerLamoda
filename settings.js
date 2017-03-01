@@ -21,6 +21,7 @@ function applyEmbeddedSettings() {
             maxProductCount: 60,
             maxProductCountUpdatePerTime: 5,
             maxNotificationCount: 10,
+            randomizeIntervalMinutes: 60,
             GA: {
                 ID: 'UA-91379404-02',
                 tracker: 'MyTracker',
@@ -67,6 +68,7 @@ function applyEmbeddedSettings() {
             maxProductCount: 6,
             maxProductCountUpdatePerTime: 3,
             maxNotificationCount: 10,
+            randomizeIntervalMinutes: 10,
             testApp: true,
             GA: {
                 ID: 'UA-91379404-02',

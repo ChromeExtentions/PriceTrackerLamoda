@@ -454,12 +454,7 @@ function newUpdateTimeTest(updateInterval) { // Интервал в секунд
 
 function newRandomUpdateTime() {
     var currentInMillis = new Date().getTime();
-    if(window.settings.testApp === true) {
-        return new Date(currentInMillis + 600000*Math.random());
-    }
-    else {
-        return new Date(currentInMillis + 3600000*Math.random());
-    }
+    return new Date(currentInMillis + (window.settings.randomizeIntervalMinutes*60*1000) *Math.random());
 }
 
 function byLastUpdate(left, right) {
